@@ -1,8 +1,10 @@
 import {
   createBrowserRouter,
+  isRouteErrorResponse,
   Navigate,
   redirect,
   RouterProvider,
+  useRouteError,
   type MiddlewareFunction,
   type RouteObject,
 } from "react-router-dom";
@@ -46,10 +48,37 @@ const authAdminMiddleware: MiddlewareFunction = ({}, next) => {
   return redirect("/auth/login");
 };
 
+function CustomErrorPage() {
+  const error = useRouteError();
+  let errorMessage: string;
+
+  if (isRouteErrorResponse(error)) {
+    // error is narrowed to ErrorResponse type
+    errorMessage = error.statusText || error.data?.message || "Unknown router error";
+  } else if (error instanceof Error) {
+    // standard JS/TS error object
+    errorMessage = error.message;
+  } else if (typeof error === "string") {
+    errorMessage = error;
+  } else {
+    console.error(error);
+    errorMessage = "An unknown error occurred.";
+  }
+
+  return (
+    <div className="flex flex-col w-full h-dvh items-center justify-center">
+      <h1 className="text-6xl font-bold my-2">Oops!</h1>
+      <p className="text-xl">Unexpected error occurred.</p>
+      <p className="text-base">{errorMessage}</p>
+    </div>
+  );
+}
+
 const routes: RouteObject[] = [
   {
     path: "/",
     element: <Layout />,
+    errorElement: <CustomErrorPage />,
     children: [
       {
         path: "/:id",
@@ -66,6 +95,7 @@ const routes: RouteObject[] = [
   {
     path: "/auth",
     middleware: [authRedirectMiddleware],
+    errorElement: <CustomErrorPage />,
     children: [
       {
         path: "login",
@@ -97,6 +127,7 @@ const routes: RouteObject[] = [
     path: "admin",
     element: <AdminLayout />,
     middleware: [authAdminMiddleware],
+    errorElement: <CustomErrorPage />,
     children: [
       {
         path: "",

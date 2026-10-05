@@ -38,5 +38,12 @@ export const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
+export const tokenUpdateSchema = z
+  .object({
+    providerId: z.number().positive(),
+    token: z.string().min(1, "Token is required"),
+  });
+
 export type UserProfileType = z.infer<typeof userProfileSchema>;
 export type ChangePasswordType = z.infer<typeof changePasswordSchema>;
+export type TokenUpdateType = z.infer<typeof tokenUpdateSchema>;

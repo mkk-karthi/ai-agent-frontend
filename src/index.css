@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   color: var(--color-gray-900);
@@ -11,6 +12,7 @@ body {
   width: 100dvw;
   height: 100dvh;
   background: var(--color-white);
+  font-size: 14px;
 }
 
 a {

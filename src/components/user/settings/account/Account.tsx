@@ -1,7 +1,7 @@
 import ProfileForm from "./ProfileForm";
 import ChangePasswordForm from "./ChangePasswordForm";
 
-export default function Account({ onClose }: { onClose?: () => void }): React.ReactElement {
+export default function Account(): React.ReactElement {
   return (
     <div>
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white m-2">Profile</h2>

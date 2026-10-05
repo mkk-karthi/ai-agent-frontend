@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useRef, useState } from "react";
-import { LogOut, Search, SquareChevronRight, User } from "lucide-react";
+import { LogOut, MessageCircle, Search, SquareChevronRight, User } from "lucide-react";
 import Logo from "../../assets/logo.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
@@ -39,7 +39,10 @@ export default function Header({ onMenuOpen }: { onMenuOpen: (value: boolean) =>
     setProfileOpen(false);
   }, [isProfileOpen]);
 
-  const menuList = [{ label: "Logout", icon: <LogOut size={12} />, fn: logout }];
+  const menuList = [
+    { label: "Chat", icon: <MessageCircle size={12} />, fn: () => navigate("/new") },
+    { label: "Logout", icon: <LogOut size={12} />, fn: logout },
+  ];
 
   return (
     <Fragment>

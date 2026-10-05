@@ -16,11 +16,11 @@ export default function NavBar({
       link: "/admin/dashboard",
       name: "Dashboard",
     },
-    {
-      icon: <User className="size-4" />,
-      link: "/admin/user",
-      name: "User",
-    },
+    // {
+    //   icon: <User className="size-4" />,
+    //   link: "/admin/user",
+    //   name: "User",
+    // },
     {
       icon: <ChartPie className="size-4" />,
       link: "/admin/tokens",

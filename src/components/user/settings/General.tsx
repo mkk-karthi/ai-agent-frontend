@@ -1,3 +1,3 @@
-export default function General({ onClose }: { onClose: () => void }): React.ReactElement {
+export default function General(): React.ReactElement {
   return <div>General</div>;
 }

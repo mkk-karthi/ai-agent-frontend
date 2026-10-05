@@ -1,37 +1,25 @@
 import { LayoutDashboard, SquareChevronRight, User } from "lucide-react";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
-import { useBreakpoint } from "../../../hooks/useBreakpoint";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { fetchService } from "../../../services/fetchService";
 import type { apiResponse } from "../../../types/type";
 import { toast } from "react-toastify";
 import { useUserStore } from "../../../stores/UserStore";
+import { UserContext } from "../../../context/userContext";
+import { useAppStore } from "../../../stores/AppStore";
+import { settingsList } from "../../../data";
+import { useBreakpoint } from "../../../hooks/useBreakpoint";
 
-interface SettingsType {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-  child: React.ReactElement;
-}
+export default function SettingsMenu(): React.ReactElement {
+  const isNavOpen = useAppStore((state) => state.navBarOpen);
+  const setNavBarOpen = useAppStore((state) => state.setNavBarOpen);
+  const { setSettingTab, setSettingsOpen } = useContext(UserContext);
+  const breakpoint = useBreakpoint();
 
-export default function SettingsMenu({
-  isNavOpen,
-  onMenuOpen,
-  setModelOpen,
-  setActiveTab,
-  settingsList,
-}: {
-  isNavOpen: boolean;
-  onMenuOpen: (value: boolean) => void;
-  setModelOpen: (val: boolean) => void;
-  setActiveTab: (val: string) => void;
-  settingsList: SettingsType[];
-}): React.ReactElement {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const settingsMenuRef = useRef<HTMLUListElement>(null);
-  const breakpoint = useBreakpoint();
 
   useOutsideClick(settingsMenuRef, () => setMenuOpen(false), isMenuOpen);
 
@@ -54,11 +42,11 @@ export default function SettingsMenu({
     },
   });
 
-  const onSettingsOpen = (value: SettingsType) => {
-    setActiveTab(value.id);
-    setModelOpen(true);
+  const onSettingsOpen = (value: string) => {
+    setSettingTab(value);
+    setSettingsOpen(true);
     setMenuOpen(false);
-    if (["xs", "sm", "md"].includes(breakpoint)) onMenuOpen(false);
+    ["xs", "sm", "md"].includes(breakpoint) && setNavBarOpen(false);
   };
 
   const handleLogout = () => {
@@ -75,9 +63,7 @@ export default function SettingsMenu({
         <div className="bg-white dark:bg-gray-800 border border-gray-400 dark:border-gray-700 rounded-full p-2">
           <User className="text-gray-900 dark:text-white size-4" />
         </div>
-        <div
-          className={`transition-[width_margin] duration-300 ${isNavOpen ? "ml-2 w-46" : "w-0"}`}
-        >
+        <div className={`transition-[width_margin] duration-300 ${isNavOpen && "ml-2"}`}>
           <div
             className={`font-semibold whitespace-nowrap overflow-hidden text-ellipsis lowercase first-letter:uppercase`}
           >
@@ -96,14 +82,14 @@ export default function SettingsMenu({
         ref={settingsMenuRef}
         className={`fixed ${isMenuOpen ? "bottom-20 opacity-100 pointer-events-auto" : "bottom-16 opacity-0 pointer-events-none"} left-4 z-25 transition-all duration-300 min-w-56 bg-white dark:bg-gray-900 p-2 rounded-xl border border-gray-400 dark:border-gray-700 shadow-md shadow-gray-900/10 dark:shadow-gray-800/90`}
       >
-        {settingsList.map((item) => (
+        {settingsList.map(({ id, name, Icon }) => (
           <li
-            key={item.id}
-            onClick={() => onSettingsOpen(item)}
+            key={id}
+            onClick={() => onSettingsOpen(id)}
             className="flex items-center px-4 p-2 gap-2 transition-all hover:bg-gray-900/5 dark:hover:bg-gray-800/50 rounded cursor-pointer"
           >
-            {item.icon}
-            <span className="ml-2">{item.name}</span>
+            <Icon className="size-4" />
+            <span className="ml-2">{name}</span>
           </li>
         ))}
 

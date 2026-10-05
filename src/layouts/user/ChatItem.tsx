@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { EllipsisVertical, Trash } from "lucide-react";
-import { useBreakpoint } from "../../hooks/useBreakpoint";
 import { useState } from "react";
+import { useBreakpoint } from "../../hooks/useBreakpoint";
 
 interface ChatListType {
   id: string | number;

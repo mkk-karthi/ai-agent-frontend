@@ -1,3 +1,5 @@
+import type { ComponentType } from "react";
+
 export interface MenuListType {
   icon: React.ReactNode;
   link: string;
@@ -16,4 +18,11 @@ export interface apiResponse<T> {
   message: string;
   data?: T;
   errors?: { [index: string]: string };
+}
+
+export interface SettingsType {
+  id: string;
+  name: string;
+  Icon: ComponentType<{ className?: string }>;
+  Component: ComponentType<{ onClose: () => void }>;
 }
