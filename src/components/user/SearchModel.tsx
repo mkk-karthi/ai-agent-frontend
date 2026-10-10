@@ -44,7 +44,7 @@ export default function SearchModel(): React.ReactElement {
     queryKey: ["esrachCoversations", debouncedSearch],
     queryFn: async ({ pageParam }: { pageParam: string | null }): Promise<ChatListType> => {
       const data = await fetchService.get(
-        `/conversations?nextToken=${pageParam}&pageSize=10&search=${debouncedSearch}`,
+        `/conversation?nextToken=${pageParam}&pageSize=10&search=${debouncedSearch}`,
       );
 
       if (data.code == 200) return data.data ?? [];

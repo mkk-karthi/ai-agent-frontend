@@ -26,7 +26,7 @@ export default function NavBar(): React.ReactElement {
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["coversations"],
     queryFn: async ({ pageParam }: { pageParam: string | null }): Promise<ChatListType> => {
-      const data = await fetchService.get(`/conversations?nextToken=${pageParam}&pageSize=10`);
+      const data = await fetchService.get(`/conversation?nextToken=${pageParam}&pageSize=10`);
 
       if (data.code == 200) return data.data ?? [];
       else throw new Error(data.message);
@@ -54,7 +54,7 @@ export default function NavBar(): React.ReactElement {
         onMouseDown={() => setNavBarOpen(false)}
       >
         <div
-          className={`bg-gray-100 dark:bg-gray-900 h-auto min-h-dvh border-r border-gray-800/50 dark:border-white/10 p-2 z-15 transition-all duration-300 ${isNavOpen ? "fixed lg:relative w-72 lg:w-[20dvw]" : "min-w-0 -translate-x-full lg:translate-x-0 w-12"}`}
+          className={`bg-gray-100 dark:bg-gray-900 h-auto min-h-dvh border-r border-gray-800/20 dark:border-white/10 p-2 z-15 transition-all duration-300 ${isNavOpen ? "fixed lg:relative w-72 lg:w-[20dvw]" : "min-w-0 -translate-x-full lg:translate-x-0 w-12"}`}
           onMouseDown={(event) => event.stopPropagation()}
         >
           <div className="group relative cursor-pointer h-10 mt-2">

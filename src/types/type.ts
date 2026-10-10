@@ -26,3 +26,14 @@ export interface SettingsType {
   Icon: ComponentType<{ className?: string }>;
   Component: ComponentType<{ onClose: () => void }>;
 }
+export interface Provider {
+  id: string;
+  name: string;
+  status: "ACTIVE" | "INACTIVE";
+  models: {
+    id: string;
+    modelName: string;
+    type?: string;
+    status: "ACTIVE" | "INACTIVE";
+  }[];
+}

@@ -64,7 +64,7 @@ export default function TokenUpdateForm({
             <input
               {...register("token")}
               type="password"
-              placeholder="Enter your password"
+              placeholder="Enter your API Key"
               className={`w-full px-3 py-2 text-sm bg-white dark:bg-white/5 focus:outline-2 focus:outline-gray-400 rounded-l-md`}
             />
             <button type="submit" disabled={isLoading} className="px-2 cursor-pointer outline-none">

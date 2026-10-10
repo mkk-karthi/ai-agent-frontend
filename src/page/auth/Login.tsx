@@ -19,7 +19,7 @@ export default function Login(): React.ReactElement {
     email: "",
     password: "",
   };
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const userStore = useUserStore((state) => state);
 
   const navigate = useNavigate();
@@ -67,7 +67,7 @@ export default function Login(): React.ReactElement {
         </div>
 
         <div className="min-w-xs sm:min-w-sm md:min-w-md space-y-4 p-6 mt-4 rounded-2xl bg-white dark:bg-gray-900">
-          <button
+          {/* <button
             type="button"
             className="flex justify-center items-center gap-x-3 w-full rounded-md px-4 py-2 text-sm font-semibold text-gray-700 dark:text-white border border-gray-300 dark:border-white/9 bg-white dark:bg-white/2 hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
@@ -79,9 +79,13 @@ export default function Login(): React.ReactElement {
             <span className="bg-gray-300 dark:bg-gray-700 w-fit relative z-2 px-2 py-0.5 rounded">
               Or Login with email
             </span>
-          </div>
+          </div> */}
 
-          <LoginForm defaultValues={loginFormData} onSubmit={mutation.mutate} isLoading={loading} />
+          <LoginForm
+            defaultValues={loginFormData}
+            onSubmit={(data) => !isLoading && mutation.mutate(data)}
+            isLoading={isLoading}
+          />
           <p className="text-base text-center">
             Don't have an Account?{" "}
             <Link to="/auth/signUp" viewTransition>

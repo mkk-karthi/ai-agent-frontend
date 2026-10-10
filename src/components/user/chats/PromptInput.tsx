@@ -1,4 +1,4 @@
-import { Play, Square } from "lucide-react";
+import { Loader, Play } from "lucide-react";
 import {
   forwardRef,
   useCallback,
@@ -96,11 +96,11 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
     (e: React.SubmitEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      if (prompt && prompt.trim()) {
+      if (prompt && prompt.trim() && !isLoading) {
         sendMessage({ id: editId, prompt });
       }
     },
-    [prompt],
+    [prompt, isLoading],
   );
 
   return (
@@ -128,7 +128,11 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
           disabled={isLoading}
           className={`flex border border-dashed p-2 rounded-full text-sm cursor-pointer`}
         >
-          {isLoading ? <Square size={12} /> : <Play size={12} />}
+          {isLoading ? (
+            <Loader size={12} className="animate-[spin_2s_linear_infinite]" />
+          ) : (
+            <Play size={12} />
+          )}
         </button>
       </form>
     </>

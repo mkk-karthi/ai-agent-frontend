@@ -14,7 +14,7 @@ export default function SignUp(): React.ReactElement {
     password: "",
     confirmPassword: "",
   };
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const mutation = useMutation({
@@ -50,7 +50,7 @@ export default function SignUp(): React.ReactElement {
         </div>
 
         <div className="min-w-md space-y-4 p-6 mt-4 rounded-2xl bg-white dark:bg-gray-900">
-          <button
+          {/* <button
             type="button"
             className="flex justify-center items-center gap-x-3 w-full rounded-md px-4 py-2 text-sm font-semibold text-gray-700 dark:text-white border border-gray-300 dark:border-white/9 bg-white dark:bg-white/2 hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
@@ -62,12 +62,12 @@ export default function SignUp(): React.ReactElement {
             <span className="bg-gray-300 dark:bg-gray-700 w-fit relative z-2 px-2 py-0.5 rounded">
               Or Login with email
             </span>
-          </div>
+          </div> */}
 
           <RegisterForm
             defaultValues={registerFormData}
-            onSubmit={mutation.mutate}
-            isLoading={loading}
+            onSubmit={(data) => !isLoading && mutation.mutate(data)}
+            isLoading={isLoading}
           />
           <p className="text-base text-center">
             Already have an Account?{" "}

@@ -1,13 +1,67 @@
-import { redirect } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useUserStore } from "../stores/UserStore";
 import type { apiResponse } from "../types/type";
+
+// Prevents duplicate /auth/token requests when multiple TanStack queries receive 401 at the same time.
+let refreshPromise: Promise<string | null> | null = null;
+
+const handleUnauthorized = () => {
+  const { setUser, setAccessToken } = useUserStore.getState();
+  setAccessToken("");
+  setUser(null);
+  useQueryClient().clear();
+
+  if (window.location.pathname !== "/auth/login") {
+    window.location.replace("/auth/login");
+  }
+};
+
+const refreshAccessToken = async (): Promise<string | null> => {
+  // If a token refresh is already in progress, reuse the existing promise
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  // Immediately invoke the async function to start the network request
+  // and store the pending Promise so concurrent calls can share it.
+  refreshPromise = (async () => {
+    try {
+      const response = await fetch("/api/auth/token", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const res = await response.json();
+      if (res.code === 200 && res.data?.token) {
+        useUserStore.getState().setAccessToken(res.data.token);
+        return res.data.token as string;
+      }
+
+      return null;
+    } catch {
+      return null;
+    } finally {
+      // Clear the in-flight promise once resolved or rejected
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+};
 
 const handleResponse = async (
   url: string,
   options?: RequestInit,
   onChunk?: (data: string) => void,
 ) => {
-  const { accessToken, setUser, setAccessToken } = useUserStore.getState();
+  const { accessToken } = useUserStore.getState();
   const response = await fetch(`/api${url}`, {
     ...options,
     headers: {
@@ -17,15 +71,33 @@ const handleResponse = async (
     },
   });
 
-  if (accessToken && response.status === 401) {
-    const res = await fetchService.post("/auth/token", {});
-    if (res.code == 400) {
-      setAccessToken("");
-      setUser(null);
-      redirect("/auth/login");
+  if (response.status === 401) {
+    // For auth endpoints, don't attempt to refresh token
+    if (url.startsWith("/auth/")) {
+      if (url === "/auth/token") {
+        handleUnauthorized();
+        throw new Error("Unauthorized");
+      }
+      return await response.json();
+    }
+
+    // Try refreshing the access token (shares promise if multiple queries hit 401 concurrently)
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      return await handleResponse(
+        url,
+        {
+          ...options,
+          headers: {
+            ...(options?.headers ?? {}),
+            Authorization: `Bearer ${newToken}`,
+          },
+        },
+        onChunk,
+      );
     } else {
-      setAccessToken(res.data.token);
-      return await handleResponse(url, { ...options });
+      handleUnauthorized();
+      throw new Error("Unauthorized");
     }
   }
 
@@ -42,7 +114,7 @@ const handleResponse = async (
   }
 
   // Validation errors
-  if (response.status === 400) {
+  if (response.status === 400 || response.status === 403) {
     return await response.json();
   }
 
@@ -64,6 +136,7 @@ const handleResponse = async (
       }
     } finally {
       reader.releaseLock();
+      return { success: true };
     }
   } else {
     return await response.json();
@@ -105,6 +178,15 @@ export const fetchService = {
     });
   },
 
+  async patch(url: string, data: { [index: string]: any }, headers?: HeadersInit | undefined) {
+    return await handleResponse(url, {
+      method: "PATCH",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    });
+  },
+
   async stream(
     url: string,
     data: { [index: string]: any },
@@ -112,7 +194,7 @@ export const fetchService = {
     onChunk: (data: string) => void,
     signal?: AbortSignal,
   ) {
-    await handleResponse(
+    return await handleResponse(
       url,
       {
         method: "POST",

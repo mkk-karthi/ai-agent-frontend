@@ -27,7 +27,7 @@ export default function DataTable<TData>({ columns, apiUrl, queryKey }: DataTabl
   });
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const pageLimitOptions = [1, 10, 25, 50, 100];
+  const pageLimitOptions = [10, 25, 50, 100];
 
   const { data, isLoading, isError } = useQuery({
     queryKey: [queryKey, pagination, sorting, globalFilter],
@@ -39,6 +39,7 @@ export default function DataTable<TData>({ columns, apiUrl, queryKey }: DataTabl
         search: globalFilter,
       }),
     placeholderData: (previousData) => previousData, // Prevents UI flickering during transitions
+    staleTime: 1000 * 60 * 5,
   });
 
   columns = [

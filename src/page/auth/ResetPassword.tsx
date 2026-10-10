@@ -18,7 +18,7 @@ export default function ResetPassword(): React.ReactElement {
     password: "",
     confirmPassword: "",
   };
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [isOtpSent, setOtpSent] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -80,16 +80,16 @@ export default function ResetPassword(): React.ReactElement {
           {isOtpSent ? (
             <ResetPasswordForm
               defaultValues={resetPasswordData}
-              onSubmit={resetPasswordMutation.mutate}
+              onSubmit={(data) => !isLoading && resetPasswordMutation.mutate(data)}
               onResendMail={forgotPasswordMutation.mutate}
-              isLoading={loading}
+              isLoading={isLoading}
               email={email}
             />
           ) : (
             <ForgotPasswordForm
               defaultValues={forgotPasswordData}
-              onSubmit={forgotPasswordMutation.mutate}
-              isLoading={loading}
+              onSubmit={(data) => !isLoading && forgotPasswordMutation.mutate(data)}
+              isLoading={isLoading}
             />
           )}
         </div>

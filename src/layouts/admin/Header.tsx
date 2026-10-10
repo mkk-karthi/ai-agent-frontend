@@ -4,12 +4,15 @@ import Logo from "../../assets/logo.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 import { useUserStore } from "../../stores/UserStore";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchService } from "../../services/fetchService";
 import type { apiResponse } from "../../types/type";
 import { toast } from "react-toastify";
+import { useAppStore } from "../../stores/AppStore";
 
-export default function Header({ onMenuOpen }: { onMenuOpen: (value: boolean) => void }) {
+export default function Header() {
+  const setNavBarOpen = useAppStore((state) => state.setNavBarOpen);
+
   const [isProfileOpen, setProfileOpen] = useState(false);
   const profileOpenRef = useRef<HTMLUListElement>(null);
 
@@ -17,6 +20,8 @@ export default function Header({ onMenuOpen }: { onMenuOpen: (value: boolean) =>
 
   const userStore = useUserStore((state) => state);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const logoutMutation = useMutation({
     mutationFn: async () => {
       const response = await fetchService.post("/auth/logout", {});
@@ -26,6 +31,8 @@ export default function Header({ onMenuOpen }: { onMenuOpen: (value: boolean) =>
       if (data.success) {
         userStore.setUser(null);
         toast.success(data.message);
+        queryClient.clear();
+
         navigate("/auth/login", { viewTransition: true });
       } else toast.error(data.message);
     },
@@ -47,13 +54,13 @@ export default function Header({ onMenuOpen }: { onMenuOpen: (value: boolean) =>
   return (
     <Fragment>
       <div
-        className={`relative top-0 left-0 w-full py-2 px-4 md:px-8 border-b border-gray-400 dark:border-white/10 bg-white dark:bg-gray-950 z-5`}
+        className={`relative top-0 left-0 w-full py-2 px-4 md:px-8 border-b border-gray-800/30 dark:border-white/10 bg-white dark:bg-gray-950 z-5`}
       >
         <div className={`flex justify-between items-center gap-3`}>
           <div className="flex md:hidden gap-2 items-center">
             <SquareChevronRight
               className="block md:hidden size-6 text-white cursor-pointer mr-2"
-              onClick={() => onMenuOpen(true)}
+              onClick={() => setNavBarOpen(true)}
             />
             <Link to="/">
               <img src={Logo} className="w-8 md:w-10 mr-4" alt="MKK" />

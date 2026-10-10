@@ -32,12 +32,12 @@ export default function SettingsModel(): React.ReactElement {
               <X size={16} />
             </button>
           </div>
-          <div className="flex flex-row md:flex-col w-full md:w-1/3 overflow-y-auto p-2 md:p-4 dark:bg-gray-800/50 border-l border-gray-800">
+          <div className="flex flex-row md:flex-col w-full md:w-1/3 overflow-y-auto p-2 md:p-4 bg-gray-900/10 dark:bg-gray-800/50">
             {settingsList.map(({ id, name, Icon }) => (
               <div
                 key={id}
                 onClick={() => setSettingTab(id)}
-                className={`flex justify-start items-center rounded hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden px-2 py-1 my-1 ${activeSettingTab == id && "bg-gray-900/5 dark:bg-white/5"}`}
+                className={`flex justify-start items-center rounded hover:bg-gray-900/10 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden px-2 py-1 my-1 ${activeSettingTab == id && "bg-gray-900/10 dark:bg-white/5"}`}
               >
                 <Icon className="size-4" />
                 <span className="ml-2">{name}</span>

@@ -1,17 +1,11 @@
-import { ChevronRight, CirclePlus } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import DataTable from "../../components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import CreateUser from "../../components/admin/user/UserCreate";
-
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  // status: "Active" | "Inactive";
-}
+import type { User } from "../../types/user";
+import StatusColumn from "../../components/admin/user/StatusColumn";
 
 export default function User(): React.ReactElement {
   const [isOpenCreateUser, openCreateUser] = useState(false);
@@ -30,25 +24,20 @@ export default function User(): React.ReactElement {
         accessorKey: "email",
         header: "Email",
       },
-      // {
-      //   accessorKey: "status",
-      //   header: "Status",
-      //   cell: ({ row }) => {
-      //     const status = row.original.status;
-
-      //     return (
-      //       <span
-      //         className={
-      //           status === "Active"
-      //             ? "rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-green-100"
-      //             : "rounded-full bg-red-600 px-3 py-1 text-xs font-medium text-red-100"
-      //         }
-      //       >
-      //         {status}
-      //       </span>
-      //     );
-      //   },
-      // },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          return (
+            <StatusColumn
+              status={row.original.status}
+              id={row.original.id}
+              apiUrl="/user/status"
+              queryKey="users"
+            />
+          );
+        },
+      },
     ],
     [],
   );

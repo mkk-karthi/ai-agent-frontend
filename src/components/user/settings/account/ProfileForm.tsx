@@ -47,7 +47,7 @@ export default function ProfileForm() {
 
   return (
     <form
-      onSubmit={handleSubmit((v) => mutation.mutate(v))}
+      onSubmit={handleSubmit((v) => !isLoading && mutation.mutate(v))}
       className="space-y-4 p-2 mt-2"
     >
       <div className="flex items-center border-b border-gray-300 dark:border-white/9 py-2">

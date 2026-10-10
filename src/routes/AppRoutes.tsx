@@ -11,15 +11,16 @@ import {
 import Home from "../page/user/Home";
 import Privacy from "../page/user/privacy";
 import Dashboard from "../page/admin/Dashboard";
+import Providers from "../page/admin/Providers";
 import AdminLayout from "../layouts/admin/AdminLayout";
 import User from "../page/admin/User";
 import Layout from "../layouts/user/Layout";
-import Tokens from "../page/admin/Tokens";
 import Login from "../page/auth/Login";
 import SignUp from "../page/auth/SignUp";
 import ResetPassword from "../page/auth/ResetPassword";
 import EmailVerification from "../page/auth/EmailVerification";
 import { useUserStore } from "../stores/UserStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 const authRedirectMiddleware: MiddlewareFunction = ({}, next) => {
   const { user } = useUserStore.getState();
@@ -31,7 +32,9 @@ const authRedirectMiddleware: MiddlewareFunction = ({}, next) => {
 
 const authMiddleware: MiddlewareFunction = ({}, next) => {
   const { user } = useUserStore.getState();
+
   if (!user || !user.id) {
+    useQueryClient().clear();
     return redirect("/auth/login");
   }
   return next();
@@ -39,12 +42,14 @@ const authMiddleware: MiddlewareFunction = ({}, next) => {
 
 const authAdminMiddleware: MiddlewareFunction = ({}, next) => {
   const { user } = useUserStore.getState();
+
   if (user && user.id) {
     if (user.roleId == 1) {
       return next();
     }
     return redirect("/new");
   }
+  useQueryClient().clear();
   return redirect("/auth/login");
 };
 
@@ -142,8 +147,8 @@ const routes: RouteObject[] = [
         element: <User />,
       },
       {
-        path: "tokens",
-        element: <Tokens />,
+        path: "providers",
+        element: <Providers />,
       },
     ],
   },

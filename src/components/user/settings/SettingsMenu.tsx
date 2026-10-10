@@ -2,7 +2,7 @@ import { LayoutDashboard, SquareChevronRight, User } from "lucide-react";
 import { useContext, useRef, useState } from "react";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { Link, useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchService } from "../../../services/fetchService";
 import type { apiResponse } from "../../../types/type";
 import { toast } from "react-toastify";
@@ -25,6 +25,8 @@ export default function SettingsMenu(): React.ReactElement {
 
   const { user, setUser } = useUserStore.getState();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const logoutMutation = useMutation({
     mutationFn: async () => {
       const response = await fetchService.post("/auth/logout", {});
@@ -34,6 +36,8 @@ export default function SettingsMenu(): React.ReactElement {
       if (data.success) {
         setUser(null);
         toast.success(data.message);
+        queryClient.clear();
+
         navigate("/auth/login", { viewTransition: true });
       } else toast.error(data.message);
     },

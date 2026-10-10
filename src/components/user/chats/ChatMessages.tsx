@@ -38,12 +38,12 @@ export default function ChatMessages({
     queryKey: ["coversationsMessage", chatId],
     queryFn: async ({ pageParam }: { pageParam: string | null }): Promise<ChatMessagesType> => {
       const data = await fetchService.get(
-        `/conversation-messages/${chatId}?nextToken=${pageParam}&pageSize=10`,
+        `/conversation/messages/${chatId}?nextToken=${pageParam}&pageSize=10`,
       );
 
       if (data.code == 200) {
         if (data.data && data.data.data && data.data.data.length > 0) {
-          if (pageParam == "") setModelId(data.data.data[0].modelId);
+          // if (pageParam == "") setModelId(data.data.data[0].modelId);
           return {
             ...data.data,
             data: data.data.data.map((v: ChatMessagesType["data"][0]) => ({
@@ -90,6 +90,10 @@ export default function ChatMessages({
   useEffect(() => {
     if (chatContainerRef.current && data?.pages.length === 1 && !isLoading) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+
+    if (data && data.pages[0].data[0] && data.pages.length > 0 && data.pages[0].data.length > 0) {
+      setModelId(data.pages[0].data[0].modelId);
     }
   }, [data, chatId]);
 
@@ -180,8 +184,8 @@ export default function ChatMessages({
                       <ChatMessage
                         key={item.id}
                         item={item}
-                        isEdit={item.role === "USER" && i === 0 && j === 1}
-                        isRetry={i === 0 && j === 0}
+                        isEdit={item.role === "USER" && i === 0 && j === 1 && !isLoading}
+                        isRetry={i === 0 && j === 0 && !isLoading}
                         regenerateContent={regenerateContent}
                       />
                     ),

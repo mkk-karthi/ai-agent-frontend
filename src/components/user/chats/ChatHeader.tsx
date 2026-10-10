@@ -25,7 +25,7 @@ export default function ChatHeader({
   const { data, isLoading, isError } = useQuery({
     queryKey: ["models"],
     queryFn: async (): Promise<ModelsType[]> => {
-      const data = await fetchService.get("/model");
+      const data = await fetchService.get("/provider/model");
       return data.data ?? [];
     },
   });
@@ -41,10 +41,10 @@ export default function ChatHeader({
       return v.status === "ACTIVE" && v.models && v.models?.length > 0 ? v : false;
     });
 
-    if (selectModel && selectModel.models && selectModel.models.length > 0) {
+    if (selectModel && selectModel.models && selectModel.models.length > 0 && chatId == "new") {
       setModelId(selectModel.models[0].id);
     }
-  }, [data]);
+  }, [data, chatId]);
 
   const modelName: string = useMemo(() => {
     const models = structuredClone(data);

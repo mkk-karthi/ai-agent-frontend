@@ -26,7 +26,7 @@ export default function NavConversations({ item }: { item: ChatType }) {
 
   const breakpoint = useBreakpoint();
   const [name, setName] = useState(item.name);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -48,7 +48,6 @@ export default function NavConversations({ item }: { item: ChatType }) {
   const openOptions = (e: React.MouseEvent, val: ChatType) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("openOptions");
 
     const rect = e.currentTarget.getBoundingClientRect();
     rect.y =
@@ -120,7 +119,7 @@ export default function NavConversations({ item }: { item: ChatType }) {
             onChange={(e) => setName(e.target.value)}
             className="outline-none border-none w-full pl-4 pr-2 py-1"
           />
-          {loading ? (
+          {isLoading ? (
             <Loader
               className={`opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity size-8 px-2 py-1`}
             />

@@ -50,7 +50,7 @@ export default function ChangePasswordForm() {
   });
 
   return (
-    <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className="space-y-4 p-2 mt-2">
+    <form onSubmit={handleSubmit((v) => !isLoading && mutation.mutate(v))} className="space-y-4 p-2 mt-2">
       <div className="border-b border-gray-300 dark:border-white/9 py-2">
         <div className="flex items-center">
           <label className="w-full md:w-1/2 mb-1 block text-sm font-medium text-gray-700 dark:text-white/90">

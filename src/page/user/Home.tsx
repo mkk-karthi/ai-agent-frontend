@@ -1,5 +1,5 @@
 import ChatHeader from "../../components/user/chats/ChatHeader";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import PromptInput, { type PromptInputRef } from "../../components/user/chats/PromptInput";
 import { useNavigate, useParams } from "react-router-dom";
 import ChatMessages from "../../components/user/chats/ChatMessages";
@@ -11,17 +11,17 @@ import { toast } from "react-toastify";
 import { Loader } from "lucide-react";
 
 export default function Home(): React.ReactElement {
-  const [streamedText, setStreamedText] = useState("");
-  const [modelId, setModelId] = useState("");
   const { id } = useParams<{ id: string }>();
-  const { user } = useUserStore.getState();
 
   if (!id) return <></>;
   const isNew = id === "new";
 
-  const [_, setConversationId] = useState("");
+  const [streamedText, setStreamedText] = useState("");
+  const [modelId, setModelId] = useState("");
   const promptRef = useRef<PromptInputRef>(null);
   const { setEditData } = useContext(ConversationContext);
+
+  const { user } = useUserStore.getState();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -44,10 +44,9 @@ export default function Home(): React.ReactElement {
 
       while ((match = matchRegex.exec(str)) !== null) {
         try {
-          console.log(match);
           results.push(JSON.parse(match[0]));
         } catch (e) {
-          console.log(e);
+          console.error(e);
           continue;
         }
       }
@@ -58,14 +57,13 @@ export default function Home(): React.ReactElement {
 
   const handleStreamResponse = (chunk: string, prompt: string, editId?: string) => {
     const chunks = parseStreamResponse(chunk);
-    console.log("chunks", chunks);
 
     chunks.forEach((v: { type: "coversation" | "stream" | "error" | "end"; text: string }) => {
       if (v.type == "coversation") {
         const coversation = JSON.parse(v.text);
-        setConversationId(coversation.id);
 
         if (editId) setEditData(null);
+        promptRef.current?.reset();
 
         if (isNew) {
           navigate(`/${coversation.id}`, { replace: true });
@@ -74,7 +72,6 @@ export default function Home(): React.ReactElement {
         queryClient.refetchQueries({
           queryKey: ["coversationsMessage", coversation.id],
         });
-        promptRef.current?.reset();
       } else if (v.type == "stream") {
         setStreamedText((prev) => prev + v.text);
       } else if (v.type == "error") {
@@ -89,6 +86,11 @@ export default function Home(): React.ReactElement {
 
         promptRef.current?.setPrompt(prompt);
       } else if (v.type == "end") {
+        // if (conversationId) {
+        //   queryClient.refetchQueries({
+        //     queryKey: ["coversationsMessage", conversationId],
+        //   });
+        // }
       }
     });
   };
@@ -96,12 +98,16 @@ export default function Home(): React.ReactElement {
   const generateMutation = useMutation({
     mutationFn: async ({ prompt, editId }: { prompt: string; editId?: string }) => {
       setStreamedText("");
-      await fetchService.stream(
-        "/generate-stream-content",
+      const response = await fetchService.stream(
+        "/conversation/generate-stream-content",
         { prompt, modelId, conversationId: isNew ? "" : id, id: editId ?? "" },
         {},
         (chunk) => handleStreamResponse(chunk, prompt, editId),
       );
+
+      if (!response.success) {
+        toast.error(response.message);
+      }
     },
     onError: (error) => {
       console.log("error", error);
@@ -111,12 +117,16 @@ export default function Home(): React.ReactElement {
   const retryMutation = useMutation({
     mutationFn: async ({ editId }: { editId?: string }) => {
       setStreamedText("");
-      await fetchService.stream(
-        "/retry-stream-content",
+      const response = await fetchService.stream(
+        "/conversation/retry-stream-content",
         { prompt, conversationId: id, id: editId },
         {},
         (chunk) => handleStreamResponse(chunk, "", editId),
       );
+
+      if (!response.success) {
+        toast.error(response.message);
+      }
     },
     onError: (error) => {
       console.log("error", error);
@@ -124,14 +134,20 @@ export default function Home(): React.ReactElement {
     },
   });
 
-  const generateContent = (data: { id: string; prompt: string }) => {
-    if (!generateMutation.isPending)
-      generateMutation.mutate({ prompt: data.prompt, editId: data.id });
-  };
+  const generateContent = useCallback(
+    (data: { id: string; prompt: string }) => {
+      if (!generateMutation.isPending)
+        generateMutation.mutate({ prompt: data.prompt, editId: data.id });
+    },
+    [generateMutation],
+  );
 
-  const regenerateContent = (id: string) => {
-    if (!retryMutation.isPending) retryMutation.mutate({ editId: id });
-  };
+  const regenerateContent = useCallback(
+    (id: string) => {
+      if (!retryMutation.isPending) retryMutation.mutate({ editId: id });
+    },
+    [generateMutation],
+  );
 
   return (
     <>
