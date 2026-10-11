@@ -4,7 +4,7 @@ import type { apiResponse } from "../../../../types/type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUserStore, type userStore } from "../../../../stores/UserStore";
 import { useMutation } from "@tanstack/react-query";
-import { fetchService } from "../../../../services/fetchService";
+import { fetchService } from "../../../../lib/fetchService";
 import { toast } from "react-toastify";
 import { useState } from "react";
 

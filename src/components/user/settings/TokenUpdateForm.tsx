@@ -4,9 +4,10 @@ import { useForm } from "react-hook-form";
 import { tokenUpdateSchema, type TokenUpdateType } from "../../../schemas/userShema";
 import type { apiResponse } from "../../../types/type";
 import { toast } from "react-toastify";
-import { fetchService } from "../../../services/fetchService";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchService } from "../../../lib/fetchService";
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import { queryClient } from "../../../lib/queryClient";
 
 export default function TokenUpdateForm({
   id,
@@ -17,7 +18,6 @@ export default function TokenUpdateForm({
 }): React.ReactElement {
   const [isLoading, setLoading] = useState(false);
   const [isEdit, setEdit] = useState(false);
-  const queryClient = useQueryClient();
 
   const {
     register,

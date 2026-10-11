@@ -3,7 +3,7 @@ import type { RegisterInput } from "../../schemas/authSchema";
 import RegisterForm from "../../components/auth/RegisterForm";
 import GoogleIcon from "../../components/ui/GoogleIcon";
 import { useMutation } from "@tanstack/react-query";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { useState } from "react";
 import type { apiResponse } from "../../types/type";
 import { toast } from "react-toastify";

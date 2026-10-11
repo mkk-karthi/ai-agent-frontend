@@ -1,6 +1,6 @@
 import { Bar } from "react-chartjs-2";
 import colors from "tailwindcss/colors";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { useQuery } from "@tanstack/react-query";
 import type { ChartData, ChartOptions, TooltipItem } from "chart.js";
 import { formatNumber } from "../../common";

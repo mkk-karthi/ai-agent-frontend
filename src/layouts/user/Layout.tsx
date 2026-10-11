@@ -30,7 +30,7 @@ export default function Layout() {
             <SearchModel />
 
             {/* main */}
-            <main className={`relative overflow-hidden size-full`}>
+            <main className={`relative overflow-hidden size-full h-dvh`}>
               <Outlet />
             </main>
 

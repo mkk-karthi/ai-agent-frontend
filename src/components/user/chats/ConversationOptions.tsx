@@ -2,12 +2,13 @@ import { Pencil, Share, Trash } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { ConversationContext } from "../../../context/conversationContext";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import type { apiResponse } from "../../../types/type";
-import { fetchService } from "../../../services/fetchService";
+import { fetchService } from "../../../lib/fetchService";
 import Modal from "../../ui/Modal";
 import { useNavigate, useParams } from "react-router-dom";
+import { queryClient } from "../../../lib/queryClient";
 
 export default function ConversationOptions() {
   const {
@@ -35,7 +36,6 @@ export default function ConversationOptions() {
       setConversationOptionHeight(chatOptionMenuRef.current.offsetHeight);
   }, [chatOptionMenuRef]);
 
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const mutation = useMutation({
     mutationFn: async () => {
@@ -88,13 +88,13 @@ export default function ConversationOptions() {
           top: conversationOptionPosition ? conversationOptionPosition.top : 0,
         }}
       >
-        <li
+        {/* <li
           onClick={handleShare}
           className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"
         >
           <Share className="size-4" />
           <span className="ml-2">Share</span>
-        </li>
+        </li> */}
         <li
           onClick={handleRename}
           className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"

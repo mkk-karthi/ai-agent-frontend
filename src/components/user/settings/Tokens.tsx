@@ -1,7 +1,7 @@
 import { CircleCheckBig, CircleX } from "lucide-react";
 import TokenUpdateForm from "./TokenUpdateForm";
 import { useQuery } from "@tanstack/react-query";
-import { fetchService } from "../../../services/fetchService";
+import { fetchService } from "../../../lib/fetchService";
 
 interface TokenType {
   id: number;

@@ -2,8 +2,8 @@ import { LayoutDashboard, SquareChevronRight, User } from "lucide-react";
 import { useContext, useRef, useState } from "react";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { Link, useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchService } from "../../../services/fetchService";
+import { useMutation } from "@tanstack/react-query";
+import { fetchService } from "../../../lib/fetchService";
 import type { apiResponse } from "../../../types/type";
 import { toast } from "react-toastify";
 import { useUserStore } from "../../../stores/UserStore";
@@ -11,6 +11,7 @@ import { UserContext } from "../../../context/userContext";
 import { useAppStore } from "../../../stores/AppStore";
 import { settingsList } from "../../../data";
 import { useBreakpoint } from "../../../hooks/useBreakpoint";
+import { queryClient } from "../../../lib/queryClient";
 
 export default function SettingsMenu(): React.ReactElement {
   const isNavOpen = useAppStore((state) => state.navBarOpen);
@@ -25,7 +26,6 @@ export default function SettingsMenu(): React.ReactElement {
 
   const { user, setUser } = useUserStore.getState();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const logoutMutation = useMutation({
     mutationFn: async () => {

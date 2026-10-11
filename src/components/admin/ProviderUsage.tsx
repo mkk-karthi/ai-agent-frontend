@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ChartData, ChartOptions, TooltipItem } from "chart.js";
 import { Pie } from "react-chartjs-2";
 import colors from "tailwindcss/colors";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { formatNumber } from "../../common";
 
 export default function ProviderUsage({

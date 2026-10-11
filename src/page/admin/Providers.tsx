@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import type { Provider } from "../../types/type";

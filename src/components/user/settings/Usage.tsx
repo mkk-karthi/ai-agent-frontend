@@ -14,7 +14,7 @@ import {
 import { useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import colors from "tailwindcss/colors";
-import { fetchService } from "../../../services/fetchService";
+import { fetchService } from "../../../lib/fetchService";
 import { formatNumber } from "../../../common";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);

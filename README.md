@@ -36,16 +36,20 @@ frontend/
 │   │   ├── useInfinityScroll.tsx # IntersectionObserver infinite scrolling
 │   │   └── useOutsideClick.tsx   # Modal & dropdown dismiss handler
 │   ├── layouts/            # UserLayout, AdminLayout, and Footer
+│   ├── lib/                # Core utilities & API clients
+│   │   ├── fetchService.ts # SSE streaming handler (`parseStreamResponse`)
+│   │   └── queryClient.ts  # TanStack QueryClient instance & cache configuration
 │   ├── page/
-│   │   ├── admin/          # Admin views (Dashboard, User, Tokens)
-│   │   ├── auth/           # Auth views (Login, Register, VerifyEmail)
+│   │   ├── admin/          # Admin views (Dashboard, Providers, User)
+│   │   ├── auth/           # Auth views (Login, SignUp, EmailVerification, ResetPassword)
 │   │   └── user/           # Core user views (Home/Chat, Privacy)
 │   ├── routes/             # AppRoutes router definitions
 │   ├── schemas/            # Zod validation schemas (auth, user, provider)
-│   ├── services/           # API handlers (fetchService.ts, common.ts)
 │   ├── stores/             # Zustand global stores (AppStore.ts, UserStore.ts)
 │   ├── types/              # TypeScript definitions (conversation, user, common)
-│   ├── App.tsx             # Root app provider setup
+│   ├── App.tsx             # Root app provider setup (QueryClientProvider, Router)
+│   ├── common.ts           # Base Axios instance & response handlers
+│   ├── data.tsx            # Static icon & navigation datasets
 │   ├── index.css           # Global stylesheet & Tailwind CSS rules
 │   └── main.tsx            # Vite client entrypoint
 ├── index.html              # HTML shell
@@ -75,8 +79,8 @@ The frontend interfaces with the backend agent memory layers to ensure seamless 
 
 ```mermaid
 graph LR
-    UI[Chat UI: Home.tsx] -->|Input + conversationId| Service[fetchService.ts]
-    Service -->|SSE Stream| UI
+    UI[Chat UI: Home.tsx] -->|Input + conversationId| Lib[lib/fetchService.ts]
+    Lib -->|SSE Stream| UI
     UI -->|Event: coversation| Cache[TanStack Query Cache]
     Cache -->|Invalidate & Refetch| Sidebar[NavConversations / Sidebar]
     UI -->|Edit / Retry with lastMessageId| Tree[Backend Message Tree]

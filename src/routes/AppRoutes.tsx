@@ -20,7 +20,7 @@ import SignUp from "../page/auth/SignUp";
 import ResetPassword from "../page/auth/ResetPassword";
 import EmailVerification from "../page/auth/EmailVerification";
 import { useUserStore } from "../stores/UserStore";
-import { useQueryClient } from "@tanstack/react-query";
+import { queryClient } from "../lib/queryClient";
 
 const authRedirectMiddleware: MiddlewareFunction = ({}, next) => {
   const { user } = useUserStore.getState();
@@ -34,7 +34,7 @@ const authMiddleware: MiddlewareFunction = ({}, next) => {
   const { user } = useUserStore.getState();
 
   if (!user || !user.id) {
-    useQueryClient().clear();
+    queryClient.clear();
     return redirect("/auth/login");
   }
   return next();
@@ -49,7 +49,7 @@ const authAdminMiddleware: MiddlewareFunction = ({}, next) => {
     }
     return redirect("/new");
   }
-  useQueryClient().clear();
+  queryClient.clear();
   return redirect("/auth/login");
 };
 

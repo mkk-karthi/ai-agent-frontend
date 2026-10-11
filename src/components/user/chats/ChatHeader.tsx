@@ -2,7 +2,7 @@ import { CircleChevronDown, Share } from "lucide-react";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useQuery } from "@tanstack/react-query";
-import { fetchService } from "../../../services/fetchService";
+import { fetchService } from "../../../lib/fetchService";
 import { UserContext } from "../../../context/userContext";
 
 interface ModelsType {
@@ -106,11 +106,11 @@ export default function ChatHeader({
       </div>
       {chatId == "new" ? (
         ""
-      ) : (
-        <div className="flex items-center px-2.5 py-2 size-9.5 lg:size-auto bg-white dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-full shadow-[0_0_5px_3px] shadow-gray-600/30 cursor-pointer">
-          <Share className="size-4 cursor-pointer" />
-          <span className="ml-2 hidden lg:block text-balance">Share</span>
-        </div>
+      ) : ( ""
+        // <div className="flex items-center px-2.5 py-2 size-9.5 lg:size-auto bg-white dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-full shadow-[0_0_5px_3px] shadow-gray-600/30 cursor-pointer">
+        //   <Share className="size-4 cursor-pointer" />
+        //   <span className="ml-2 hidden lg:block text-balance">Share</span>
+        // </div>
       )}
     </div>
   );

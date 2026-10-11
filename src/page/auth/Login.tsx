@@ -3,13 +3,14 @@ import type { LoginInput } from "../../schemas/authSchema";
 import LoginForm from "../../components/auth/LoginForm";
 import GoogleIcon from "../../components/ui/GoogleIcon";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchService } from "../../services/fetchService";
+import { useMutation } from "@tanstack/react-query";
+import { fetchService } from "../../lib/fetchService";
 import type { apiResponse } from "../../types/type";
 import { toast } from "react-toastify";
 import { useUserStore, type userStore } from "../../stores/UserStore";
 import { useAppStore } from "../../stores/AppStore";
 import { useBreakpoint } from "../../hooks/useBreakpoint";
+import { queryClient } from "../../lib/queryClient";
 
 export default function Login(): React.ReactElement {
   const setNavBarOpen = useAppStore((state) => state.setNavBarOpen);
@@ -23,7 +24,6 @@ export default function Login(): React.ReactElement {
   const userStore = useUserStore((state) => state);
 
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (data: LoginInput) => {
       setLoading(true);

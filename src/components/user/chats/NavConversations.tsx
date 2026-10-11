@@ -4,12 +4,13 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from "rea
 import { Check, EllipsisVertical, Loader } from "lucide-react";
 import type { ChatType } from "../../../types/conversation";
 import { ConversationContext } from "../../../context/conversationContext";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchService } from "../../../services/fetchService";
+import { useMutation } from "@tanstack/react-query";
+import { fetchService } from "../../../lib/fetchService";
 import type { apiResponse } from "../../../types/type";
 import { toast } from "react-toastify";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useBreakpoint } from "../../../hooks/useBreakpoint";
+import { queryClient } from "../../../lib/queryClient";
 
 export default function NavConversations({ item }: { item: ChatType }) {
   const isNavOpen = useAppStore((state) => state.navBarOpen);
@@ -29,7 +30,6 @@ export default function NavConversations({ item }: { item: ChatType }) {
   const [isLoading, setLoading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
   const { id } = useParams();
 
   useOutsideClick(

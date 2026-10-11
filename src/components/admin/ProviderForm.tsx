@@ -1,12 +1,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import type { apiResponse, Provider } from "../../types/type";
 import { providerSchema, type providerInput } from "../../schemas/providerSchema";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { Eye, EyeClosed } from "lucide-react";
+import { queryClient } from "../../lib/queryClient";
 
 export default function ProviderForm({ item }: { item: Provider }) {
   const [isLoading, setLoading] = useState(false);
@@ -27,7 +28,6 @@ export default function ProviderForm({ item }: { item: Provider }) {
     defaultValues: formData,
   });
 
-  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (data: providerInput) => {
       setLoading(true);

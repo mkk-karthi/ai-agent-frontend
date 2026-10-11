@@ -5,7 +5,7 @@ import SettingsMenu from "../../components/user/settings/SettingsMenu";
 import React, { Fragment, useContext, useEffect, useRef } from "react";
 import { UserContext } from "../../context/userContext";
 import { useAppStore } from "../../stores/AppStore";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInfiniteScroll } from "../../hooks/useInfinityScroll";
 import type { ChatType } from "../../types/conversation";

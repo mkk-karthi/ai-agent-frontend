@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-table";
 import { ArrowDownUp, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { useState } from "react";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[];

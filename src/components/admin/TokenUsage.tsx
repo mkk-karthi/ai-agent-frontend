@@ -3,7 +3,7 @@ import { type TooltipItem, type ChartOptions, type ChartData } from "chart.js";
 import { useState } from "react";
 import { Line } from "react-chartjs-2";
 import colors from "tailwindcss/colors";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { formatNumber } from "../../common";
 
 export default function TokenUsage({

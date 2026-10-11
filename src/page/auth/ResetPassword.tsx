@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ResetPasswordForm from "../../components/auth/ResetPasswordForm";
 import { useMutation } from "@tanstack/react-query";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { toast } from "react-toastify";
 import type { apiResponse } from "../../types/type";
 import type { ForgotPasswordInput, ResetPasswordInput } from "../../schemas/authSchema";

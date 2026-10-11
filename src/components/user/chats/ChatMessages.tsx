@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseMarkdown } from "@tanstack/markdown/parser";
 import { streamingMarkdownExtension } from "@tanstack/markdown/extensions/streaming";
-import { fetchService } from "../../../services/fetchService";
+import { fetchService } from "../../../lib/fetchService";
 import { useInfiniteScroll } from "../../../hooks/useInfinityScroll";
 import { MarkdownComponent } from "../../ui/MarkdownComponent";
 import { ChevronDown } from "lucide-react";
 import ChatMessage from "./ChatMessage";
 import type { ChatMessageType } from "../../../types/conversation";
 import { useNavigate } from "react-router-dom";
+import { queryClient } from "../../../lib/queryClient";
 
 interface ChatMessagesType {
   data: Array<ChatMessageType>;
@@ -32,7 +33,6 @@ export default function ChatMessages({
 }) {
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["coversationsMessage", chatId],

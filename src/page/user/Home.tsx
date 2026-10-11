@@ -4,11 +4,12 @@ import PromptInput, { type PromptInputRef } from "../../components/user/chats/Pr
 import { useNavigate, useParams } from "react-router-dom";
 import ChatMessages from "../../components/user/chats/ChatMessages";
 import { useUserStore } from "../../stores/UserStore";
-import { fetchService } from "../../services/fetchService";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchService } from "../../lib/fetchService";
+import { useMutation } from "@tanstack/react-query";
 import { ConversationContext } from "../../context/conversationContext";
 import { toast } from "react-toastify";
 import { Loader } from "lucide-react";
+import { queryClient } from "../../lib/queryClient";
 
 export default function Home(): React.ReactElement {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +24,6 @@ export default function Home(): React.ReactElement {
 
   const { user } = useUserStore.getState();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     promptRef.current?.reset();

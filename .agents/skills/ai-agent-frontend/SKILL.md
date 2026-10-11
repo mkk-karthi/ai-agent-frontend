@@ -49,6 +49,9 @@ frontend/
 │   │   ├── admin/                 # AdminLayout, Header, NavBar
 │   │   ├── user/                  # UserLayout, NavBar
 │   │   └── Footer.tsx             # Global footer
+│   ├── lib/                       # Core utilities & API clients
+│   │   ├── fetchService.ts        # SSE streaming handler (`parseStreamResponse`)
+│   │   └── queryClient.ts         # TanStack QueryClient instance & cache configuration
 │   ├── page/                      # Route page views
 │   │   ├── admin/                 # Admin pages (Dashboard, Providers, User)
 │   │   ├── auth/                  # Auth pages (Login, SignUp, EmailVerification, ResetPassword)
@@ -56,14 +59,13 @@ frontend/
 │   ├── routes/
 │   │   └── AppRoutes.tsx          # React Router v7 routes definition
 │   ├── schemas/                   # Zod validation schemas (authSchema, providerSchema, userSchema)
-│   ├── services/                  # API network services
-│   │   ├── common.ts              # Base Axios instance & response handlers
-│   │   └── fetchService.ts        # SSE streaming handler (`parseStreamResponse`)
 │   ├── stores/                    # Zustand global client stores
 │   │   ├── AppStore.ts            # UI states, sidebar collapse toggle
 │   │   └── UserStore.ts           # Authenticated user profile, roles, tokens
 │   ├── types/                     # Shared TypeScript interfaces (conversation, user, common)
 │   ├── App.tsx                    # Root provider setup (QueryClientProvider, Router, Toastify)
+│   ├── common.ts                  # Base Axios instance & response handlers
+│   ├── data.tsx                   # Static icon & navigation datasets
 │   ├── index.css                  # Global Tailwind CSS v4 directives
 │   └── main.tsx                   # Vite client mount entry point
 ├── index.html                     # HTML application template
@@ -85,7 +87,7 @@ sequenceDiagram
     actor User as User
     participant Prompt as PromptInput.tsx
     participant Home as Home.tsx
-    participant FS as fetchService.ts
+    participant FS as lib/fetchService.ts
     participant Cache as TanStack Query Cache
     participant API as Backend SSE Endpoint
 
@@ -105,7 +107,7 @@ sequenceDiagram
 
 ---
 
-## ⚡ Core Streaming Protocol (`src/services/fetchService.ts`)
+## ⚡ Core Streaming Protocol (`src/lib/fetchService.ts`)
 
 1. **Chunk Healing**:
    - High-throughput SSE chunks often arrive fused together (e.g. `}{`). `parseStreamResponse` automatically detects and inserts commas (`},{`) before parsing.
@@ -119,7 +121,8 @@ sequenceDiagram
 
 ## 🗃️ State Management Strategy
 
-1. **Server State (TanStack Query v5)**:
+1. **Server State (TanStack Query v5 via `src/lib/queryClient.ts`)**:
+   - Configured in `src/lib/queryClient.ts` with `staleTime: 1 hour` and `retry: 1`.
    - `['conversations']`: Sidebar thread list (invalidated on stream end, thread rename, delete).
    - `['messages', conversationId]`: Thread messages timeline.
 2. **Client Global State (Zustand)**:

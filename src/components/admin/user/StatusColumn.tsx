@@ -2,10 +2,11 @@ import type React from "react";
 import type { User } from "../../../types/user";
 import { Loader, Pencil } from "lucide-react";
 import { useCallback, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchService } from "../../../services/fetchService";
+import { useMutation } from "@tanstack/react-query";
+import { fetchService } from "../../../lib/fetchService";
 import { toast } from "react-toastify";
 import type { apiResponse } from "../../../types/type";
+import { queryClient } from "../../../lib/queryClient";
 
 export default function StatusColumn({
   status,
@@ -20,7 +21,6 @@ export default function StatusColumn({
 }): React.ReactElement {
   const [edit, setEdit] = useState(false);
   const [isLoading, setLoading] = useState(false);
-  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (data: User["status"]) => {

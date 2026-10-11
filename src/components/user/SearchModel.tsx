@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import { Fragment, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { UserContext } from "../../context/userContext";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import { useInfiniteScroll } from "../../hooks/useInfinityScroll";
 import type { ChatType } from "../../types/conversation";
 import { useDebounce } from "../../hooks/useDebounce";

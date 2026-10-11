@@ -3,7 +3,7 @@ import { BadgeCheck, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { fetchService } from "../../services/fetchService";
+import { fetchService } from "../../lib/fetchService";
 import type { apiResponse } from "../../types/type";
 
 export default function EmailVerification() {

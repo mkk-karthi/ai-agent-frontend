@@ -4,11 +4,12 @@ import Logo from "../../assets/logo.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 import { useUserStore } from "../../stores/UserStore";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchService } from "../../services/fetchService";
+import { useMutation } from "@tanstack/react-query";
+import { fetchService } from "../../lib/fetchService";
 import type { apiResponse } from "../../types/type";
 import { toast } from "react-toastify";
 import { useAppStore } from "../../stores/AppStore";
+import { queryClient } from "../../lib/queryClient";
 
 export default function Header() {
   const setNavBarOpen = useAppStore((state) => state.setNavBarOpen);
@@ -20,7 +21,6 @@ export default function Header() {
 
   const userStore = useUserStore((state) => state);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
