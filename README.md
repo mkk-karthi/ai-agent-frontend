@@ -4,6 +4,23 @@ Modern, high-performance web application for the MKK AI Agent platform. Built wi
 
 ---
 
+## 🔗 Repositories
+
+- **Frontend (This Repository)**: [https://github.com/mkk-karthi/ai-agent-frontend](https://github.com/mkk-karthi/ai-agent-frontend)
+- **Backend Repository**: [https://github.com/mkk-karthi/ai-agent-backend](https://github.com/mkk-karthi/ai-agent-backend)
+
+---
+
+## 📸 Screenshots
+
+### 💬 Real-Time Chat Interface
+![Chat Interface](docs/images/chat-interface.png)
+
+### 📊 Admin Analytics Dashboard
+![Admin Dashboard](docs/images/dashboard.png)
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Framework & Language**: React 19, TypeScript
