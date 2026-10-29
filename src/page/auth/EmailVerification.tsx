@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { fetchService } from "../../lib/fetchService";
 import type { apiResponse } from "../../types/type";
+import MetaHead from "../../components/common/MetaHead";
 
 export default function EmailVerification() {
   const params = useParams();
@@ -43,6 +44,11 @@ export default function EmailVerification() {
 
   return (
     <div className="flex w-full h-dvh justify-center items-center">
+      <MetaHead
+        title={isLoading ? "Verifying Email..." : isError ? "Verification Failed" : "Email Verified"}
+        description="Verify your email address to access your MKK Agent account."
+        noIndex={true}
+      />
       <div className="flex flex-col gap-3 justify-center items-center bg-gray-800 rounded border border-gary-700 shadow-2xl shadow-gray-800 p-4 h-1/2 w-10/12 lg:w-1/3">
         {isLoading ? (
           <Loader2 size={54} className="text-blue-500 animate-spin" />

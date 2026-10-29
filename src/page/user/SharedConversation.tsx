@@ -6,6 +6,7 @@ import ChatMessages from "../../components/user/chats/ChatMessages";
 import Logo from "../../assets/logo.svg";
 import { AlertCircle, Check, Loader, LogIn, Share, SquarePen } from "lucide-react";
 import { useState } from "react";
+import MetaHead from "../../components/common/MetaHead";
 
 interface SharedConversationData {
   id: string;
@@ -48,8 +49,28 @@ export default function SharedConversation(): React.ReactElement {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const metaTitle = isLoading
+    ? "Loading Shared Conversation..."
+    : isError
+      ? "Shared Conversation Unavailable"
+      : data?.name
+        ? `${data.name} (Shared)`
+        : "Shared Conversation";
+
+  const metaDescription = isError
+    ? "This shared conversation is not available or restricted."
+    : data?.name
+      ? `Shared conversation: ${data.name}`
+      : "View shared conversation on MKK Agent.";
+
   return (
     <div className="flex flex-col h-dvh w-dvw bg-white dark:bg-gray-950 overflow-hidden">
+      <MetaHead
+        title={metaTitle}
+        description={metaDescription}
+        ogType="article"
+        canonicalUrl={shareUrl}
+      />
       {/* Header */}
       <header className="h-16 shrink-0 border-b border-gray-200 dark:border-white/10 px-4 sm:px-6 flex items-center justify-between z-10 bg-white/80 dark:bg-gray-950/80 backdrop-blur-sm">
         <div className="flex items-center gap-3 min-w-0">

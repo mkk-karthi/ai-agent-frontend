@@ -8,7 +8,7 @@ import {
   type MiddlewareFunction,
   type RouteObject,
 } from "react-router-dom";
-import Home from "../page/user/Home";
+import Conversation from "../page/user/Conversation";
 import Privacy from "../page/user/privacy";
 import Dashboard from "../page/admin/Dashboard";
 import Providers from "../page/admin/Providers";
@@ -19,6 +19,7 @@ import Login from "../page/auth/Login";
 import SignUp from "../page/auth/SignUp";
 import ResetPassword from "../page/auth/ResetPassword";
 import EmailVerification from "../page/auth/EmailVerification";
+import GoogleCallback from "../page/auth/GoogleCallback";
 import { useUserStore } from "../stores/UserStore";
 import { queryClient } from "../lib/queryClient";
 import SharedConversation from "../page/user/SharedConversation";
@@ -89,7 +90,7 @@ const routes: RouteObject[] = [
       {
         path: "/:id",
         index: true,
-        element: <Home />,
+        element: <Conversation />,
         middleware: [authMiddleware],
       },
       {
@@ -123,6 +124,11 @@ const routes: RouteObject[] = [
       {
         path: "verify-email/:id",
         element: <EmailVerification />,
+      },
+      {
+        // Public route — no authRedirectMiddleware so it always renders
+        path: "google/callback",
+        element: <GoogleCallback />,
       },
     ],
   },

@@ -5,13 +5,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import ChatMessages from "../../components/user/chats/ChatMessages";
 import { useUserStore } from "../../stores/UserStore";
 import { fetchService } from "../../lib/fetchService";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ConversationContext } from "../../context/conversationContext";
 import { toast } from "react-toastify";
-import { Loader } from "lucide-react";
+import { AlertCircle, Loader, SquarePen } from "lucide-react";
 import { queryClient } from "../../lib/queryClient";
+import type { ConversationType } from "../../types/conversation";
+import MetaHead from "../../components/common/MetaHead";
 
-export default function Home(): React.ReactElement {
+export default function Conversation(): React.ReactElement {
   const { id } = useParams<{ id: string }>();
 
   if (!id) return <></>;
@@ -25,6 +27,24 @@ export default function Home(): React.ReactElement {
   const { user } = useUserStore.getState();
   const navigate = useNavigate();
 
+  const {
+    data: conversationData,
+    isLoading: isConversationLoading,
+    isError: isConversationError,
+    error: conversationError,
+  } = useQuery({
+    queryKey: ["conversation", id],
+    queryFn: async (): Promise<ConversationType> => {
+      const res = await fetchService.get<ConversationType>(`/conversation/${id}`);
+      if (res.code !== 200 || !res.data) {
+        throw new Error(res.message || "Conversation not found");
+      }
+      return res.data;
+    },
+    enabled: !isNew && Boolean(id),
+    retry: false,
+  });
+
   useEffect(() => {
     promptRef.current?.reset();
   }, [id]);
@@ -33,11 +53,11 @@ export default function Home(): React.ReactElement {
     if (!str || !str.trim()) return [];
 
     try {
-      // 1. Convert the fused chunks into a clean valid JSON array layout
+      // Convert the fused chunks into a clean valid JSON array layout
       const formatted = "[" + str.replace(/}{/g, "},{") + "]";
       return JSON.parse(formatted);
     } catch (err) {
-      // 2. FALLBACK: regex grabs every individual {"type": ... } object blocks independently
+      // FALLBACK: regex grabs every individual {"type": ... } object blocks independently
       const matchRegex = /{"type":"[^]*?","text":"[^]*?"}/g;
       const results = [];
       let match;
@@ -64,6 +84,8 @@ export default function Home(): React.ReactElement {
 
         if (editId) setEditData(null);
         promptRef.current?.reset();
+
+        queryClient.setQueryData(["conversation", coversation.id], coversation);
 
         if (isNew) {
           navigate(`/${coversation.id}`, { replace: true });
@@ -149,10 +171,62 @@ export default function Home(): React.ReactElement {
     [generateMutation],
   );
 
+  const canShowChat =
+    !isNew && !isConversationLoading && !isConversationError && Boolean(conversationData);
+  const canShare = !isNew && !isConversationLoading && !isConversationError;
+
+  const metaTitle = isNew
+    ? "New Chat"
+    : isConversationLoading
+      ? "Loading Chat..."
+      : isConversationError
+        ? "Conversation Not Found"
+        : conversationData?.name || "Chat";
+
+  const metaDescription = isNew
+    ? "Start a new AI conversation with MKK Agent."
+    : isConversationError
+      ? "The requested AI conversation could not be found."
+      : conversationData?.name
+        ? `Chat conversation: ${conversationData.name}`
+        : "View and continue your AI conversation with MKK Agent.";
+
   return (
     <>
-      <ChatHeader chatId={id} modelId={modelId} setModelId={setModelId} />
-      {!isNew && (
+      <MetaHead title={metaTitle} description={metaDescription} />
+      <ChatHeader chatId={id} modelId={modelId} setModelId={setModelId} canShare={canShare} />
+
+      {!isNew && isConversationLoading && (
+        <div className="flex flex-col items-center justify-center w-full h-[calc(100%-120px)] pt-18 pb-10">
+          <Loader size={36} className="animate-[spin_2s_linear_infinite] text-gray-500" />
+        </div>
+      )}
+
+      {!isNew && !isConversationLoading && isConversationError && (
+        <div className="flex flex-col items-center justify-center w-full h-full p-6 text-center">
+          <div className="p-4 rounded-full bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 mb-4 shadow-sm">
+            <AlertCircle className="size-10" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            Conversation Not Found
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md mb-6">
+            {conversationError instanceof Error
+              ? conversationError.message
+              : "This conversation may have been deleted or you do not have permission to view it."}
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate("/new")}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-white text-white dark:text-gray-900 font-medium text-sm transition-all duration-200 shadow-sm hover:shadow active:scale-95 cursor-pointer"
+          >
+            <SquarePen className="size-4" />
+            New Conversation
+          </button>
+        </div>
+      )}
+
+      {canShowChat && (
         <ChatMessages
           chatId={id}
           setModelId={setModelId}
@@ -162,25 +236,30 @@ export default function Home(): React.ReactElement {
           regenerateContent={regenerateContent}
         />
       )}
-      <div
-        className={`absolute flex flex-col items-center w-full transition-all duration-300 ${isNew ? "top-1/3" : "bottom-0 lg:bottom-8 z-2"}`}
-      >
+
+      {(isNew || canShowChat) && (
         <div
-          className={`${isNew && !generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8`}
+          className={`absolute flex flex-col items-center w-full transition-all duration-300 ${isNew ? "top-1/3" : "bottom-0 lg:bottom-8 z-2"}`}
         >
-          Ask your query,
-          <span className="lowercase first-letter:uppercase ml-2">{user?.firstName}</span>
+          <div
+            className={`${isNew && !generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8`}
+          >
+            Ask your query,
+            <span className="lowercase first-letter:uppercase ml-2">{user?.firstName}</span>
+          </div>
+          <div
+            className={`${isNew && generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8`}
+          >
+            <Loader size={32} className="animate-[spin_2s_linear_infinite]" />
+          </div>
+          <PromptInput
+            ref={promptRef}
+            className="w-sm md:w-3xl"
+            sendMessage={generateContent}
+            isLoading={generateMutation.isPending || retryMutation.isPending}
+          />
         </div>
-        <div className={`${isNew && generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8`}>
-          <Loader size={32} className="animate-[spin_2s_linear_infinite]" />
-        </div>
-        <PromptInput
-          ref={promptRef}
-          className="w-sm md:w-3xl"
-          sendMessage={generateContent}
-          isLoading={generateMutation.isPending || retryMutation.isPending}
-        />
-      </div>
+      )}
     </>
   );
 }

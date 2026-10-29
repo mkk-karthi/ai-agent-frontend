@@ -1,12 +1,19 @@
 import { createContext, useState, type ReactNode } from "react";
 
-export const UserContext = createContext({
+export const UserContext = createContext<{
+  isSettingsOpen: boolean;
+  activeSettingTab: string;
+  searchModelOpen: boolean;
+  setSettingsOpen: (v: boolean) => void;
+  setSettingTab: (v: string) => void;
+  setSearchModelOpen: (v: boolean) => void;
+}>({
   isSettingsOpen: false,
   activeSettingTab: "",
   searchModelOpen: false,
-  setSettingsOpen: (v: boolean) => {},
-  setSettingTab: (v: string) => {},
-  setSearchModelOpen: (v: boolean) => {},
+  setSettingsOpen: () => {},
+  setSettingTab: () => {},
+  setSearchModelOpen: () => {},
 });
 
 // Create a Provider component

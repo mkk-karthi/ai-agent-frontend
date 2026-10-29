@@ -38,6 +38,16 @@ export const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
+export const createPasswordSchema = z
+  .object({
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
 export const tokenUpdateSchema = z
   .object({
     providerId: z.number().positive(),
@@ -46,4 +56,5 @@ export const tokenUpdateSchema = z
 
 export type UserProfileType = z.infer<typeof userProfileSchema>;
 export type ChangePasswordType = z.infer<typeof changePasswordSchema>;
+export type CreatePasswordType = z.infer<typeof createPasswordSchema>;
 export type TokenUpdateType = z.infer<typeof tokenUpdateSchema>;

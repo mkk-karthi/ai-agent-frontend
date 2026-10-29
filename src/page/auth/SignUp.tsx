@@ -7,8 +7,11 @@ import { fetchService } from "../../lib/fetchService";
 import { useState } from "react";
 import type { apiResponse } from "../../types/type";
 import { toast } from "react-toastify";
+import { useRecaptcha } from "../../hooks/useRecaptcha";
+import MetaHead from "../../components/common/MetaHead";
 
 export default function SignUp(): React.ReactElement {
+  const { executeRecaptcha } = useRecaptcha();
   const registerFormData: RegisterInput = {
     email: "",
     password: "",
@@ -20,7 +23,9 @@ export default function SignUp(): React.ReactElement {
   const mutation = useMutation({
     mutationFn: async (data: RegisterInput) => {
       setLoading(true);
-      const response = await fetchService.post("/auth/register", data);
+      const captchaToken = await executeRecaptcha("register");
+      const payload = captchaToken ? { ...data, captchaToken } : data;
+      const response = await fetchService.post("/auth/register", payload);
       return response;
     },
     onSuccess: (data: apiResponse<null>) => {
@@ -39,6 +44,10 @@ export default function SignUp(): React.ReactElement {
 
   return (
     <div className="h-dvh w-full overflow-y-auto bg-gray-100 dark:bg-gray-950">
+      <MetaHead
+        title="Create Account"
+        description="Create an account on MKK Agent to get started with AI chats and personal agent workflows."
+      />
       <div className="min-h-full flex flex-col items-center py-8 px-4">
         <div className="w-full text-center p-4">
           <Link to="/new" className="text-3xl font-bold text-gray-950! dark:text-white!">
@@ -50,19 +59,20 @@ export default function SignUp(): React.ReactElement {
         </div>
 
         <div className="min-w-md space-y-4 p-6 mt-4 rounded-2xl bg-white dark:bg-gray-900">
-          {/* <button
+          <button
             type="button"
-            className="flex justify-center items-center gap-x-3 w-full rounded-md px-4 py-2 text-sm font-semibold text-gray-700 dark:text-white border border-gray-300 dark:border-white/9 bg-white dark:bg-white/2 hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            onClick={() => window.location.assign("/api/auth/google")}
+            className="flex justify-center items-center gap-x-3 w-full rounded-md px-4 py-2 text-sm font-semibold text-gray-700 dark:text-white border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-all cursor-pointer"
           >
             <GoogleIcon size={16} />
             <span>Sign up with Google</span>
           </button>
 
-          <div className="relative w-full text-base text-gray-900/80 dark:text-white/80 my-4 text-center before:bg-gray-300 dark:before:bg-gray-700 before:w-full before:h-0.5 before:block before:absolute before:top-3">
-            <span className="bg-gray-300 dark:bg-gray-700 w-fit relative z-2 px-2 py-0.5 rounded">
-              Or Login with email
-            </span>
-          </div> */}
+          <div className="relative w-full text-sm text-gray-500 dark:text-white/50 text-center my-2 flex items-center gap-3">
+            <span className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+            <span>or sign up with email</span>
+            <span className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+          </div>
 
           <RegisterForm
             defaultValues={registerFormData}

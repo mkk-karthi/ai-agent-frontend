@@ -8,7 +8,7 @@ interface AppStore {
 
 export const useAppStore = create<AppStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       navBarOpen: false,
       setNavBarOpen: (val) => set({ navBarOpen: val }),
     }),

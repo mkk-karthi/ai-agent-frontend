@@ -11,3 +11,13 @@ export interface ChatType {
   name: string;
   isPinned: boolean;
 }
+
+export interface ConversationType {
+  id: string;
+  name: string;
+  conversationShare?: {
+    id: string;
+    type: "RESTRICTED" | "PUBLIC" | "SPECIFIC_USER";
+    userMails: string[];
+  } | null;
+}

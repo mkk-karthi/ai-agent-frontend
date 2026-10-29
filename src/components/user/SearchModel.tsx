@@ -1,7 +1,7 @@
 import { Loader, Search, X } from "lucide-react";
 import Modal from "../ui/Modal";
 import { NavLink } from "react-router-dom";
-import { Fragment, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../../context/userContext";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchService } from "../../lib/fetchService";

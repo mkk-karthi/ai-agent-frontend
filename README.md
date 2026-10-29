@@ -1,10 +1,10 @@
 # MKK AI Agent - Frontend
 
-Modern, high-performance web application for the MKK AI Agent platform. Built with React 19, Vite, Tailwind CSS v4, and TanStack React Query, featuring real-time SSE stream rendering, thread memory navigation, and multi-model switching.
+A fast, modern AI chat web application built with **React 19**, **Vite**, and **Tailwind CSS**. It connects to the MKK AI Agent backend to give you a smooth, real-time conversational experience with OpenAI and Google Gemini models.
 
 ---
 
-## 🔗 Repositories
+## 🔗 Project Links
 
 - **Frontend (This Repository)**: [https://github.com/mkk-karthi/ai-agent-frontend](https://github.com/mkk-karthi/ai-agent-frontend)
 - **Backend Repository**: [https://github.com/mkk-karthi/ai-agent-backend](https://github.com/mkk-karthi/ai-agent-backend)
@@ -13,7 +13,7 @@ Modern, high-performance web application for the MKK AI Agent platform. Built wi
 
 ## 📸 Screenshots
 
-### 💬 Real-Time Chat Interface
+### 💬 Chat Interface & Live Web Search
 ![Chat Interface](docs/images/chat-interface.png)
 
 ### 📊 Admin Analytics Dashboard
@@ -21,162 +21,167 @@ Modern, high-performance web application for the MKK AI Agent platform. Built wi
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Features at a Glance
 
-- **Framework & Language**: React 19, TypeScript
-- **Build Tool**: Vite 8
-- **Styling**: Tailwind CSS v4, Lucide React Icons
-- **State Management**: Zustand (`AppStore`, `UserStore`), React Context (`ConversationContext`, `UserContext`)
-- **Data Fetching & Cache**: TanStack React Query v5
-- **Routing**: React Router DOM v7
-- **Forms & Validation**: React Hook Form, Zod
-- **Markdown & Streaming**: `@tanstack/markdown`, Custom SSE chunk parser
+- ⚡ **Live Streaming Responses**: Watch AI replies appear word-by-word in real time (using Server-Sent Events).
+- 🔍 **Built-in Web Search**: When needed, the AI automatically searches the web to give you up-to-date answers with source links.
+- 🤖 **Easy Model Switching**: Switch between OpenAI (GPT-4o) and Google Gemini models with a single click.
+- ✏️ **Edit & Retry**: Edit any previous prompt or regenerate an answer anytime without losing your conversation history.
+- 🔗 **Flexible Chat Sharing**:
+  - **Restricted (Default)**: Private to you.
+  - **Public**: Anyone with the link can read the conversation.
+  - **Specific Users**: Only people with invited email addresses can view.
+- 🔑 **Google Sign-In & Password Login**:
+  - Sign in with one click using your Google account.
+  - Or use standard email and password.
+  - Google users can also create a password anytime in their settings.
+- 🛡️ **Invisible Bot Protection**: Google reCAPTCHA v3 protects login and signup pages in the background without annoying puzzles.
+- 📱 **Clean & Responsive UI**: Looks great and works smoothly on mobile, tablet, and desktop screens with collapsible sidebar navigation.
+- 📊 **Admin Dashboard**: Manage AI providers, add API keys, and monitor user token consumption.
 
 ---
 
-## 📁 Directory Structure
+## 🛠️ Tech Stack
+
+We kept the tech stack modern, lightweight, and easy to understand:
+
+| Tool | Purpose | Why We Use It |
+| :--- | :--- | :--- |
+| **React 19** | UI Library | Modern component model and fast rendering |
+| **TypeScript** | Language | Catches bugs early with type safety |
+| **Vite 8** | Build Tool | Super fast local development and instant hot reload |
+| **Tailwind CSS v4** | Styling | Clean, responsive design without writing messy CSS |
+| **TanStack React Query v5** | Server State | Handles caching, refetching, and pagination smoothly |
+| **Zustand** | Global State | Simple and lightweight store for user session & UI toggles |
+| **Lucide React** | Icons | Crisp and modern icons |
+| **React Hook Form + Zod** | Forms & Validation | Clean forms with instant error messages |
+
+---
+
+## 📁 Project Folder Structure
+
+Here is how the project files are organized:
 
 ```text
 frontend/
-├── public/                 # Static assets & favicon
+├── public/                 # Static files (favicon, public assets)
 ├── src/
-│   ├── assets/             # Brand logos & icons (logo.svg)
-│   ├── components/
-│   │   ├── admin/          # Admin management (User tables, token meters)
-│   │   ├── auth/           # Login, Register, Password forms
-│   │   ├── ui/             # Reusable UI primitives (Buttons, Modals, Inputs)
-│   │   └── user/           # User chat UI (ChatHeader, NavConversations, SearchModel, ShareConversation)
-│   ├── context/            # ConversationContext & UserContext providers
-│   ├── hooks/              # Custom utilities
-│   │   ├── useBreakpoint.tsx     # Viewport responsive breakpoint detector
-│   │   ├── useDebounce.tsx       # Search query debouncing (300ms)
-│   │   ├── useInfinityScroll.tsx # IntersectionObserver infinite scrolling
-│   │   └── useOutsideClick.tsx   # Modal & dropdown dismiss handler
-│   ├── layouts/            # UserLayout, AdminLayout, and Footer
-│   ├── lib/                # Core utilities & API clients
-│   │   ├── fetchService.ts # SSE streaming handler (`parseStreamResponse`)
-│   │   └── queryClient.ts  # TanStack QueryClient instance & cache configuration
-│   ├── page/
-│   │   ├── admin/          # Admin views (Dashboard, Providers, User)
-│   │   ├── auth/           # Auth views (Login, SignUp, EmailVerification, ResetPassword)
-│   │   └── user/           # Core user views (Home/Chat, Privacy, SharedConversation)
-│   ├── routes/             # AppRoutes router definitions
-│   ├── schemas/            # Zod validation schemas (auth, user, provider, conversation)
-│   ├── stores/             # Zustand global stores (AppStore.ts, UserStore.ts)
-│   ├── types/              # TypeScript definitions (conversation, user, common)
-│   ├── App.tsx             # Root app provider setup (QueryClientProvider, Router)
-│   ├── common.ts           # Base Axios instance & response handlers
-│   ├── data.tsx            # Static icon & navigation datasets
-│   ├── index.css           # Global stylesheet & Tailwind CSS rules
-│   └── main.tsx            # Vite client entrypoint
-├── index.html              # HTML shell
-├── package.json            # Project dependencies & scripts
-├── tailwind.config.js      # Tailwind configuration
-├── tsconfig.json           # TypeScript configuration
+│   ├── assets/             # Brand logos and images
+│   ├── components/         # Reusable UI pieces
+│   │   ├── admin/          # Admin panels (usage charts, provider forms)
+│   │   ├── auth/           # Login, Sign Up, and Password Reset forms
+│   │   ├── common/         # Shared helpers (MetaHead for page titles & SEO)
+│   │   ├── ui/             # Basic building blocks (Buttons, Modals, Inputs, Tables)
+│   │   └── user/           # Chat UI (ChatHeader, Message list, Share modal, Settings)
+│   ├── context/            # Context providers (Active model & draft prompt state)
+│   ├── hooks/              # Custom React hooks (useRecaptcha, useDebounce, useInfinityScroll)
+│   ├── layouts/            # Page layouts (UserLayout with sidebar, AdminLayout)
+│   ├── lib/                # Network helpers (fetchService for streaming, queryClient for cache)
+│   ├── page/               # Main pages
+│   │   ├── admin/          # Admin views (Dashboard, Providers, Users)
+│   │   ├── auth/           # Auth pages (Login, SignUp, Google Callback)
+│   │   └── user/           # User views (Conversation.tsx, SharedConversation.tsx)
+│   ├── routes/             # App routing rules (/c/:id, /share/:id, /admin, etc.)
+│   ├── schemas/            # Zod validation schemas
+│   ├── stores/             # Zustand stores (UserStore for login, AppStore for sidebar)
+│   ├── types/              # TypeScript type definitions
+│   ├── App.tsx             # Root component with providers
+│   ├── index.css           # Global stylesheet and Tailwind setup
+│   └── main.tsx            # App starting point
+├── .env.example            # Template for environment variables
+├── package.json            # Project dependencies and run scripts
 └── vite.config.ts          # Vite configuration
 ```
 
 ---
 
-## 🤖 Core Agent Capabilities
+## 🚀 Getting Started (Beginner Guide)
 
-The frontend client integrates:
-- ⚡ **Real-Time SSE Streaming & Parser**: Continuous stream delta rendering with fused-chunk error recovery.
-- 🔍 **Autonomous Web Search & Grounding**: Visualization of live search queries, tool execution states, and grounded sources.
-- 🤖 **Multi-Model Orchestration**: Dynamic model discovery, filtering, and seamless provider switching.
-- 💬 **Conversation Tree Navigation**: Linear timeline projection of branched turns, retries, and prompt edits.
-- 🪙 **Token Metering & Guardrails**: Account balance tracking, package management, and quota enforcement.
-- 🔗 **Conversation Sharing & Public Previews**: Granular sharing (`PUBLIC`, `SPECIFIC_USER` email restriction), direct link copying, and dedicated public viewing route (`/share/:id`).
-- 📂 **Collapsible Navigation Sections**: Toggleable and animated Pinned and Recents sections in the sidebar navigation.
-- 🛡️ **Admin Supervision**: Provider configuration, model migration, and user administration.
-
----
-
-## 🧠 Agent Memory & State Interaction
-
-The frontend interfaces with the backend agent memory layers to ensure seamless conversational continuity:
-
-```mermaid
-graph LR
-    UI[Chat UI: Home.tsx] -->|Input + conversationId| Lib[lib/fetchService.ts]
-    Lib -->|SSE Stream| UI
-    UI -->|Event: coversation| Cache[TanStack Query Cache]
-    Cache -->|Invalidate & Refetch| Sidebar[NavConversations / Sidebar]
-    UI -->|Edit / Retry with lastMessageId| Tree[Backend Message Tree]
-```
-
-### 1. Active Thread Context
-
-- `ConversationContext` holds the currently selected `conversationId`, message chain, and active model parameters.
-- Switching threads instantly hydrates chat messages from TanStack Query's cache (`['messages', conversationId]`) before background validation.
-
-### 2. Message History & Tree Navigation
-
-- **Linear Projection**: Displays parent-child message chains from the backend relational tree into an intuitive linear chat timeline.
-- **Retrying & Editing**: Triggering a prompt edit or message retry sends `lastMessageId` to the backend to create or link new sibling turns without losing prior history.
-
-### 3. Client State & Cache Synchronisation
-
-- **Optimistic UI Updates**: New user prompts are immediately rendered in the timeline while the SSE stream connects.
-- **Cache Invalidation**: On stream end (`end` event), the conversation list query is invalidated to synchronize updated thread names and timestamps.
-
----
-
-## 🔄 Core Frontend Workflows
-
-### 1. Real-Time Streaming Chat Flow
-
-1. User enters prompt in `Home.tsx` and selects an AI model from `SearchModel.tsx`.
-2. `fetchService.ts` initiates an SSE stream connection (`/conversation/generate-stream-content`).
-3. Stream parser handles event types:
-   - `coversation`: Captures new conversation UUID, updates browser URL.
-   - `stream`: Appends real-time token deltas into active message view state.
-   - `error`: Displays toast notification and restores user input prompt.
-   - `end`: Completes stream lifecycle.
-
-### 2. Debounced Search & Infinite History Flow
-
-1. User types in search input within `NavConversations.tsx`.
-2. `useDebounce` delays network query by `300ms`, minimizing redundant API requests.
-3. `useInfinityScroll` monitors bottom sentinel via `IntersectionObserver` to trigger `fetchNextPage` automatically.
-
-### 3. Conversation Sharing & Public Viewing Flow
-
-1. User opens the Share modal from `ChatHeader.tsx` or conversation options.
-2. `ShareConversation.tsx` fetches the current sharing configuration and available options (`PUBLIC` vs `SPECIFIC_USER`).
-3. If `SPECIFIC_USER` is chosen, the user can add or remove permitted email addresses with instant format validation.
-4. Saving generates or updates the public link (`/share/:id`).
-5. Anyone navigating to `/share/:id` (`SharedConversation.tsx`) can view the conversation history in read-only mode without logging in.
-
----
-
-## 🚀 Getting Started
+Follow these simple steps to run the frontend locally on your machine.
 
 ### Prerequisites
 
-- Node.js v18+
+Make sure you have installed:
+- **Node.js** (v18 or higher)
+- **npm** (comes with Node.js)
 
-### Setup
+### Step 1: Install Dependencies
+
+Open your terminal, navigate to the `frontend` folder, and run:
 
 ```bash
-# 1. Install dependencies
+cd frontend
 npm install
-
-# 2. Start development server (runs on http://localhost:3000 or http://localhost:5173)
-npm run dev
-
-# 3. Build for production
-npm run build
-
-# 4. Preview production build
-npm run preview
 ```
 
-### Post-Setup Admin Configuration
+### Step 2: Set Up Your Environment File
 
-Once setup is complete:
-1. Log in with an Admin account (default: `admin@gmail.com` / `Admin@123`).
-2. Navigate to the **Admin Dashboard > Providers** page.
-3. Configure the **Gemini** and **OpenAI** API keys.
-4. Migrate/sync available models from providers.
-5. Update the status (`ACTIVE` / `INACTIVE`) of models and providers as needed.
+Copy the example file to create your own `.env`:
+
+```bash
+cp .env.example .env
+```
+
+> [!NOTE]
+> For basic local testing, you don't need to change anything! If you want Google reCAPTCHA v3 anti-bot defense active, simply set `VITE_RECAPTCHA_SITE_KEY`. If left empty, the app will run normally in development mode without blocking you.
+
+> [!CAUTION]
+> **Never commit `.env` to GitHub** or share secret keys. Always use `.env.example` as a template.
+
+### Step 3: Start the Development Server
+
+Run this command:
+
+```bash
+npm run dev
+```
+
+Your app will start at **`http://localhost:3000`** (or `http://localhost:5173`). Open that URL in your web browser!
+
+### Step 4: Build for Production
+
+When you are ready to deploy:
+
+```bash
+npm run build
+```
+
+This compiles your TypeScript and creates an optimized production bundle in the `dist/` folder.
+
+---
+
+## 💡 How Key Features Work (Simple Explanations)
+
+### 1. Real-Time Chat Streaming
+1. You type a question and click **Send**.
+2. Your message immediately appears on screen.
+3. The app connects to the backend streaming endpoint.
+4. As the AI thinks, words stream into your screen in real time.
+5. If the AI searches the web, you see a small search badge showing what it is looking for.
+
+### 2. Opening Conversations (`/c/:id`)
+- When you open a chat link, the app checks if the conversation exists.
+- If it exists, your chat messages load right away.
+- If it does not exist (or you don't have access), you will see a friendly error message with a **"New Conversation"** button, and the input box is hidden so you don't accidentally send messages into an invalid thread.
+
+### 3. Sharing a Chat
+- Click the **Share** button in the top bar of any chat.
+- Choose your preferred privacy:
+  - **Restricted (Default)**: Completely private. No link is shown.
+  - **Public**: Generates a link that anyone can open in read-only mode at `/share/:id`.
+  - **Specific Users**: Enter specific email addresses. Only those users can view it.
+
+### 4. Google Sign-In & Passwords
+- Click **Sign in with Google** on the login page.
+- You will be sent to Google to sign in, then returned right back to the app, logged in automatically.
+- If your account was made with Google, you don't need a password. But if you ever want one, just open **Settings > Account** and click **Create Password**.
+
+### 5. Bot Protection (reCAPTCHA v3)
+- Google reCAPTCHA v3 runs invisibly only on login and registration pages.
+- As soon as you log in, the reCAPTCHA badge is removed automatically so it does not clutter your chat screen.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.

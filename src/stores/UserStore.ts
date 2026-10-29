@@ -10,6 +10,8 @@ export interface userStore {
     role: string;
     roleId: number;
     createdAt: string;
+    authProvider?: string;
+    hasPassword?: boolean;
   } | null;
   accessToken: string;
   setUser: (val: userStore["user"]) => void;

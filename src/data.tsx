@@ -1,7 +1,6 @@
 import type { SettingsType } from "./types/type";
-import { ChartColumn, PlayingCardsFan, SettingsIcon, UserIcon } from "lucide-react";
+import { ChartColumn, PlayingCardsFan, UserIcon } from "lucide-react";
 import Account from "./components/user/settings/account/Account";
-import General from "./components/user/settings/General";
 import Tokens from "./components/user/settings/Tokens";
 import { Usage } from "./components/user/settings/Usage";
 
@@ -12,12 +11,6 @@ export const settingsList: SettingsType[] = [
     Icon: UserIcon,
     Component: Account,
   },
-  // {
-  //   id: "general",
-  //   name: "General",
-  //   Icon: SettingsIcon,
-  //   Component: General,
-  // },
   {
     id: "tokens",
     name: "Tokens",

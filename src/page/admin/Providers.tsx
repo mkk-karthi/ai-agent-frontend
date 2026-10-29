@@ -6,6 +6,7 @@ import { ChevronRight } from "lucide-react";
 import type { Provider } from "../../types/type";
 import ProviderForm from "../../components/admin/ProviderForm";
 import StatusColumn from "../../components/admin/user/StatusColumn";
+import MetaHead from "../../components/common/MetaHead";
 
 export default function Providers(): React.ReactElement {
   const [activeTab, setActiveTab] = useState<string | null>(null);
@@ -31,6 +32,11 @@ export default function Providers(): React.ReactElement {
 
   return (
     <>
+      <MetaHead
+        title="AI Providers & Models"
+        description="Configure AI provider connections, API tokens, and model availability in MKK Agent Admin."
+        noIndex={true}
+      />
       <div className="rounded-lg px-6 py-8 dark:bg-gray-800/20 ring shadow-xl ring-gray-300 dark:ring-white/10 outline-1 outline-white/10">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-base text-gray-500 dark:text-gray-400">

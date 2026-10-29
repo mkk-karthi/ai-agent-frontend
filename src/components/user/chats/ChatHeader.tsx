@@ -16,10 +16,12 @@ export default function ChatHeader({
   chatId,
   modelId,
   setModelId,
+  canShare = true,
 }: {
   chatId: string;
   modelId: string;
   setModelId: (v: string) => void;
+  canShare?: boolean;
 }) {
   const { setSettingTab, setSettingsOpen } = useContext(UserContext);
 
@@ -114,9 +116,7 @@ export default function ChatHeader({
             </ul>
           )}
         </div>
-        {chatId == "new" ? (
-          ""
-        ) : (
+        {chatId === "new" || !canShare ? null : (
           <div
             className="flex items-center px-2.5 py-2 size-9.5 lg:size-auto bg-white dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-full shadow-[0_0_5px_3px] shadow-gray-600/30 cursor-pointer"
             onClick={() => openShareModel(true)}

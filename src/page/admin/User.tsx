@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import CreateUser from "../../components/admin/user/UserCreate";
 import type { User } from "../../types/user";
 import StatusColumn from "../../components/admin/user/StatusColumn";
+import MetaHead from "../../components/common/MetaHead";
 
 export default function User(): React.ReactElement {
   const [isOpenCreateUser, openCreateUser] = useState(false);
@@ -44,6 +45,11 @@ export default function User(): React.ReactElement {
 
   return (
     <>
+      <MetaHead
+        title="Users Management"
+        description="Manage users, account statuses, and permissions in MKK Agent Admin."
+        noIndex={true}
+      />
       <div className="rounded-lg px-6 py-8 dark:bg-gray-800/20 ring shadow-xl ring-gray-300 dark:ring-white/10 outline-1 outline-white/10">
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">

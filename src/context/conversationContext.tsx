@@ -1,5 +1,5 @@
 import { createContext, useState, type ReactNode } from "react";
-import type { ChatMessageType, ChatType } from "../types/conversation";
+import type { ChatMessageType } from "../types/conversation";
 
 interface ConversationContextType {
   isEdit: boolean;
@@ -11,8 +11,8 @@ interface ConversationContextType {
 export const ConversationContext = createContext<ConversationContextType>({
   isEdit: false,
   editData: null,
-  setEdit: (v: boolean) => {},
-  setEditData: (v: ChatMessageType | null) => {},
+  setEdit: () => {},
+  setEditData: () => {},
 });
 
 // Create a Provider component

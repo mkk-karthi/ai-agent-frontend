@@ -2,8 +2,17 @@ import { Outlet } from "react-router-dom";
 import NavBar from "./NavBar";
 import Footer from "../Footer";
 import Header from "./Header";
+import { useEffect } from "react";
 
 export default function AdminLayout() {
+  useEffect(() => {
+    const badges = document.querySelectorAll<HTMLElement>(".grecaptcha-badge");
+    badges.forEach((b) => {
+      b.style.visibility = "hidden";
+      b.style.pointerEvents = "none";
+    });
+  }, []);
+
   return (
     <div className="flex relative bg-white dark:bg-gray-950">
       {/* Sidebar */}
