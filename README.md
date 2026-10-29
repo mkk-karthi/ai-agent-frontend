@@ -45,7 +45,7 @@ frontend/
 │   │   ├── admin/          # Admin management (User tables, token meters)
 │   │   ├── auth/           # Login, Register, Password forms
 │   │   ├── ui/             # Reusable UI primitives (Buttons, Modals, Inputs)
-│   │   └── user/           # User chat UI (ChatHeader, NavConversations, SearchModel)
+│   │   └── user/           # User chat UI (ChatHeader, NavConversations, SearchModel, ShareConversation)
 │   ├── context/            # ConversationContext & UserContext providers
 │   ├── hooks/              # Custom utilities
 │   │   ├── useBreakpoint.tsx     # Viewport responsive breakpoint detector
@@ -59,9 +59,9 @@ frontend/
 │   ├── page/
 │   │   ├── admin/          # Admin views (Dashboard, Providers, User)
 │   │   ├── auth/           # Auth views (Login, SignUp, EmailVerification, ResetPassword)
-│   │   └── user/           # Core user views (Home/Chat, Privacy)
+│   │   └── user/           # Core user views (Home/Chat, Privacy, SharedConversation)
 │   ├── routes/             # AppRoutes router definitions
-│   ├── schemas/            # Zod validation schemas (auth, user, provider)
+│   ├── schemas/            # Zod validation schemas (auth, user, provider, conversation)
 │   ├── stores/             # Zustand global stores (AppStore.ts, UserStore.ts)
 │   ├── types/              # TypeScript definitions (conversation, user, common)
 │   ├── App.tsx             # Root app provider setup (QueryClientProvider, Router)
@@ -86,6 +86,8 @@ The frontend client integrates:
 - 🤖 **Multi-Model Orchestration**: Dynamic model discovery, filtering, and seamless provider switching.
 - 💬 **Conversation Tree Navigation**: Linear timeline projection of branched turns, retries, and prompt edits.
 - 🪙 **Token Metering & Guardrails**: Account balance tracking, package management, and quota enforcement.
+- 🔗 **Conversation Sharing & Public Previews**: Granular sharing (`PUBLIC`, `SPECIFIC_USER` email restriction), direct link copying, and dedicated public viewing route (`/share/:id`).
+- 📂 **Collapsible Navigation Sections**: Toggleable and animated Pinned and Recents sections in the sidebar navigation.
 - 🛡️ **Admin Supervision**: Provider configuration, model migration, and user administration.
 
 ---
@@ -137,6 +139,14 @@ graph LR
 1. User types in search input within `NavConversations.tsx`.
 2. `useDebounce` delays network query by `300ms`, minimizing redundant API requests.
 3. `useInfinityScroll` monitors bottom sentinel via `IntersectionObserver` to trigger `fetchNextPage` automatically.
+
+### 3. Conversation Sharing & Public Viewing Flow
+
+1. User opens the Share modal from `ChatHeader.tsx` or conversation options.
+2. `ShareConversation.tsx` fetches the current sharing configuration and available options (`PUBLIC` vs `SPECIFIC_USER`).
+3. If `SPECIFIC_USER` is chosen, the user can add or remove permitted email addresses with instant format validation.
+4. Saving generates or updates the public link (`/share/:id`).
+5. Anyone navigating to `/share/:id` (`SharedConversation.tsx`) can view the conversation history in read-only mode without logging in.
 
 ---
 

@@ -5,7 +5,6 @@ import Header from "./Header";
 import SettingsModel from "../../components/user/settings/SettingsModel";
 import SearchModel from "../../components/user/SearchModel";
 import { UserProvider } from "../../context/userContext";
-import ConversationOptions from "../../components/user/chats/ConversationOptions";
 import { ConversationProvider } from "../../context/conversationContext";
 import { useAppStore } from "../../stores/AppStore";
 
@@ -18,7 +17,6 @@ export default function Layout() {
         <ConversationProvider>
           {/* Sidebar */}
           <NavBar />
-          <ConversationOptions />
           <div className={`transition-all duration-300 w-dvw ${isNavOpen && "lg:w-[80dvw]"}`}>
             {/* header */}
             <Header />

@@ -9,4 +9,5 @@ export interface ChatMessageType {
 export interface ChatType {
   id: string;
   name: string;
+  isPinned: boolean;
 }

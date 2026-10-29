@@ -21,6 +21,7 @@ import ResetPassword from "../page/auth/ResetPassword";
 import EmailVerification from "../page/auth/EmailVerification";
 import { useUserStore } from "../stores/UserStore";
 import { queryClient } from "../lib/queryClient";
+import SharedConversation from "../page/user/SharedConversation";
 
 const authRedirectMiddleware: MiddlewareFunction = ({}, next) => {
   const { user } = useUserStore.getState();
@@ -96,6 +97,11 @@ const routes: RouteObject[] = [
         element: <Navigate to="/new" replace />,
       },
     ],
+  },
+  {
+    path: "/share/:id",
+    element: <SharedConversation />,
+    errorElement: <CustomErrorPage />,
   },
   {
     path: "/auth",

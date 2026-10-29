@@ -1,9 +1,8 @@
 import { NavLink, useParams } from "react-router-dom";
 import { useAppStore } from "../../../stores/AppStore";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Check, EllipsisVertical, Loader } from "lucide-react";
 import type { ChatType } from "../../../types/conversation";
-import { ConversationContext } from "../../../context/conversationContext";
 import { useMutation } from "@tanstack/react-query";
 import { fetchService } from "../../../lib/fetchService";
 import type { apiResponse } from "../../../types/type";
@@ -12,18 +11,27 @@ import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useBreakpoint } from "../../../hooks/useBreakpoint";
 import { queryClient } from "../../../lib/queryClient";
 
-export default function NavConversations({ item }: { item: ChatType }) {
+export default function NavConversations({
+  item,
+  conversation,
+  conversationEdit,
+  conversationOptionHeight,
+  setConversation,
+  setConversationEdit,
+  setConversationOptionOpen,
+  setConversationOptionPosition,
+}: {
+  item: ChatType;
+  conversation: ChatType | null;
+  conversationEdit: boolean;
+  conversationOptionHeight: number;
+  setConversation: (v: ChatType | null) => void;
+  setConversationEdit: (v: boolean) => void;
+  setConversationOptionOpen: (v: boolean) => void;
+  setConversationOptionPosition: (v: DOMRect | null) => void;
+}) {
   const isNavOpen = useAppStore((state) => state.navBarOpen);
   const setNavBarOpen = useAppStore((state) => state.setNavBarOpen);
-  const {
-    conversationId,
-    conversationEdit,
-    conversationOptionHeight,
-    setConversationId,
-    setConversationOptionOpen,
-    setConversationOptionPosition,
-    setConversationEdit,
-  } = useContext(ConversationContext);
 
   const breakpoint = useBreakpoint();
   const [name, setName] = useState(item.name);
@@ -34,12 +42,12 @@ export default function NavConversations({ item }: { item: ChatType }) {
 
   useOutsideClick(
     formRef,
-    () => (setConversationEdit(false), setConversationId(null), setName(item.name)),
-    conversationEdit && conversationId === item.id,
+    () => (setConversationEdit(false), setConversation(null), setName(item.name)),
+    conversationEdit && conversation?.id === item.id,
   );
 
   useEffect(() => {
-    if (conversationEdit && conversationId === item.id && inputRef.current) {
+    if (conversationEdit && conversation?.id === item.id && inputRef.current) {
       // inputRef.current.focus();
       inputRef.current.select();
     }
@@ -56,14 +64,14 @@ export default function NavConversations({ item }: { item: ChatType }) {
         : rect.y;
     setConversationOptionPosition(rect);
 
-    setConversationId(val.id);
+    setConversation(val);
     setConversationOptionOpen(true);
   };
 
   const mutation = useMutation({
     mutationFn: async (data: string) => {
       setLoading(true);
-      const response = await fetchService.put(`/conversation/${conversationId}`, { name: data });
+      const response = await fetchService.put(`/conversation/${conversation?.id}`, { name: data });
       return response;
     },
     onSuccess: (data: apiResponse<null>) => {
@@ -73,7 +81,7 @@ export default function NavConversations({ item }: { item: ChatType }) {
         queryClient.invalidateQueries({ queryKey: ["coversations"] });
 
         setConversationEdit(false);
-        setConversationId(null);
+        setConversation(null);
       } else toast.error(data.message);
     },
     onError: (error) => {
@@ -90,25 +98,23 @@ export default function NavConversations({ item }: { item: ChatType }) {
     if (!name || !name.trim()) {
       setName(item.name);
       setConversationEdit(false);
-      setConversationId(null);
+      setConversation(null);
     } else {
       mutation.mutate(name);
     }
   };
 
-  const navOpen = useCallback(
-    () => {
-      if (["xs", "sm", "md"].includes(breakpoint)) {
-        setNavBarOpen(false);
-      }
-    },
-    [conversationEdit, conversationId],
-  );
+  const navOpen = useCallback(() => {
+    if (["xs", "sm", "md"].includes(breakpoint)) {
+      setNavBarOpen(false);
+    }
+  }, [conversationEdit, conversation]);
 
   return (
     <li className={`${isNavOpen ? "my-1" : "my-0"}`} title={item.name}>
-      {isNavOpen && conversationEdit && conversationId === item.id ? (
+      {isNavOpen && conversationEdit && conversation?.id === item.id ? (
         <form
+          ref={formRef}
           onSubmit={handleRenameSubmit}
           className={`flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer group ${id == item.id && "bg-gray-900/5 dark:bg-white/5"}`}
         >
@@ -145,7 +151,7 @@ export default function NavConversations({ item }: { item: ChatType }) {
             {item.name}
           </div>
           <EllipsisVertical
-            className={`opacity-100 lg:opacity-0 ${conversationEdit && conversationId === item.id ? "" : "group-hover:opacity-100"} transition-opacity ${isNavOpen ? "size-8 px-2 py-1" : "size-0"}`}
+            className={`opacity-100 lg:opacity-0 ${conversationEdit && conversation?.id === item.id ? "" : "group-hover:opacity-100"} transition-opacity ${isNavOpen ? "size-8 px-2 py-1" : "size-0"}`}
             onClick={(e) => openOptions(e, item)}
           />
         </NavLink>

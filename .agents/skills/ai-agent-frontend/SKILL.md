@@ -31,10 +31,12 @@ frontend/
 │   │   ├── ui/                    # Reusable dumb UI primitives (Buttons, Modals, Inputs, DataTable)
 │   │   └── user/                  # Core user chat components
 │   │       ├── chats/
-│   │       │   ├── ChatHeader.tsx # Model details, conversation controls, title display
-│   │       │   ├── ChatMessages.tsx # Linear message timeline renderer
+│   │       │   ├── ChatHeader.tsx # Model details, conversation controls, title & share button
+│   │       │   ├── ChatMessages.tsx # Linear message timeline renderer (supports isShared)
+│   │       │   ├── ConversationOptions.tsx # Conversation dropdown menu with share option
 │   │       │   ├── NavConversations.tsx # Sidebar with debounced search & infinite scroll
-│   │       │   └── PromptInput.tsx # User input area with submit & abort triggers
+│   │       │   ├── PromptInput.tsx # User input area with submit & abort triggers
+│   │       │   └── ShareConversation.tsx # Share modal (Public/Specific User with email whitelist)
 │   │       ├── settings/          # User settings modal (Profile, ChangePassword, Tokens, Usage)
 │   │       └── SearchModel.tsx    # Modal for discovering and switching active AI models
 │   ├── context/                   # React Context providers
@@ -47,7 +49,7 @@ frontend/
 │   │   └── useOutsideClick.tsx    # Modal & dropdown dismiss handler on outside click
 │   ├── layouts/                   # Layout wrappers
 │   │   ├── admin/                 # AdminLayout, Header, NavBar
-│   │   ├── user/                  # UserLayout, NavBar
+│   │   ├── user/                  # UserLayout, NavBar (collapsible Pinned & Recents)
 │   │   └── Footer.tsx             # Global footer
 │   ├── lib/                       # Core utilities & API clients
 │   │   ├── fetchService.ts        # SSE streaming handler (`parseStreamResponse`)
@@ -55,10 +57,10 @@ frontend/
 │   ├── page/                      # Route page views
 │   │   ├── admin/                 # Admin pages (Dashboard, Providers, User)
 │   │   ├── auth/                  # Auth pages (Login, SignUp, EmailVerification, ResetPassword)
-│   │   └── user/                  # Core user pages (Home/Chat, Privacy)
+│   │   └── user/                  # Core user pages (Home/Chat, Privacy, SharedConversation)
 │   ├── routes/
-│   │   └── AppRoutes.tsx          # React Router v7 routes definition
-│   ├── schemas/                   # Zod validation schemas (authSchema, providerSchema, userSchema)
+│   │   └── AppRoutes.tsx          # React Router v7 routes definition (/share/:id public route)
+│   ├── schemas/                   # Zod validation schemas (authSchema, providerSchema, userSchema, conversationSchema)
 │   ├── stores/                    # Zustand global client stores
 │   │   ├── AppStore.ts            # UI states, sidebar collapse toggle
 │   │   └── UserStore.ts           # Authenticated user profile, roles, tokens
@@ -139,6 +141,26 @@ sequenceDiagram
 - `useInfinityScroll(callback)`: Encapsulates `IntersectionObserver` to trigger `fetchNextPage` automatically when the user scrolls near the bottom of lists.
 - `useBreakpoint()`: Responsive screen width breakpoint detection.
 - `useOutsideClick(ref, callback)`: Closes modals, dropdowns, and flyout menus when clicking outside.
+
+---
+
+## 🔗 Conversation Sharing & Collapsible Navigation
+
+1. **Share Modal (`ShareConversation.tsx`)**:
+   - Manages sharing state via React Hook Form and Zod (`conversationSchema.ts`).
+   - Fetches available share options (`/conversation/share/options`) and existing settings (`/conversation/:id`).
+   - Supports `PUBLIC` links and `SPECIFIC_USER` restricted access with dynamic email tagging and inline error validation.
+   - Provides one-click clipboard link copying (`/share/:id`).
+
+2. **Public Shared View (`SharedConversation.tsx`)**:
+   - No-auth public page mounted at `/share/:id`.
+   - Reads conversation metadata from `/shared/conversation/:id` and loads messages using `ChatMessages` (`isShared={true}`).
+   - Displays share link copy button and contextual "New Chat" (if logged in) or "Log in" action buttons.
+
+3. **Collapsible Sidebar Sections (`NavBar.tsx`)**:
+   - `isPinnedOpen` and `isRecentOpen` states manage expansion of the **Pinned** and **Recents** conversation lists.
+   - Headers include `ChevronDown` icons that smoothly rotate `-rotate-90` on collapse.
+   - Seamless infinite scrolling pagination without scroll-jumping on page fetches.
 
 ---
 

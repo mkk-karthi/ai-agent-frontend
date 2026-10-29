@@ -1,16 +1,17 @@
 import { Link, NavLink } from "react-router-dom";
-import { Search, SquareChevronLeft, SquareChevronRight, SquarePen } from "lucide-react";
+import { ChevronDown, Search, SquareChevronLeft, SquareChevronRight, SquarePen } from "lucide-react";
 import Logo from "../../assets/logo.svg";
 import SettingsMenu from "../../components/user/settings/SettingsMenu";
-import React, { Fragment, useContext, useEffect, useRef } from "react";
+import React, { Fragment, useContext, useRef, useState } from "react";
 import { UserContext } from "../../context/userContext";
 import { useAppStore } from "../../stores/AppStore";
 import { fetchService } from "../../lib/fetchService";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useInfiniteScroll } from "../../hooks/useInfinityScroll";
 import type { ChatType } from "../../types/conversation";
 import NavConversations from "../../components/user/chats/NavConversations";
 import { useBreakpoint } from "../../hooks/useBreakpoint";
+import ConversationOptions from "../../components/user/chats/ConversationOptions";
 
 interface ChatListType {
   data: Array<ChatType>;
@@ -22,6 +23,16 @@ export default function NavBar(): React.ReactElement {
   const setNavBarOpen = useAppStore((state) => state.setNavBarOpen);
   const { setSearchModelOpen } = useContext(UserContext);
   const breakpoint = useBreakpoint();
+
+  const [conversation, setConversation] = useState<ChatType | null>(null);
+  const [conversationEdit, setConversationEdit] = useState(false);
+  const [conversationOptionOpen, setConversationOptionOpen] = useState(false);
+  const [conversationOptionPosition, setConversationOptionPosition] = useState<DOMRect | null>(
+    null,
+  );
+  const [conversationOptionHeight, setConversationOptionHeight] = useState<number>(0);
+  const [isPinnedOpen, setIsPinnedOpen] = useState(true);
+  const [isRecentOpen, setIsRecentOpen] = useState(true);
 
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["coversations"],
@@ -35,6 +46,16 @@ export default function NavBar(): React.ReactElement {
     getNextPageParam: (lastPage) => lastPage.nextToken ?? undefined,
   });
 
+  const pinnedConversations = useQuery({
+    queryKey: ["pinnedCoversations"],
+    queryFn: async (): Promise<ChatType[]> => {
+      const data = await fetchService.get(`/conversation/pin`);
+
+      if (data.code == 200) return data.data ?? [];
+      else throw new Error(data.message);
+    },
+  });
+
   const loaderRef = useInfiniteScroll({
     isLoading: isFetchingNextPage,
     hasMore: hasNextPage,
@@ -42,11 +63,7 @@ export default function NavBar(): React.ReactElement {
   });
 
   const conversationListRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (conversationListRef.current) {
-      conversationListRef.current.scrollTop = 0;
-    }
-  }, [data]);
+
   return (
     <>
       <div
@@ -107,32 +124,93 @@ export default function NavBar(): React.ReactElement {
                 </div>
               </li>
             </ul>
+
             <div ref={conversationListRef} className="h-[calc(100dvh-13rem)] overflow-y-auto">
               {isNavOpen && (
                 <>
-                  <div
-                    className={`text-base text-gray-900/50 dark:text-white/50 font-semibold transition-[width_pading] duration-300 mt-2 ${isNavOpen && "px-2"}`}
-                  >
-                    {isNavOpen && "Recents"}
-                  </div>
-                  {status === "pending" ? (
+                  {/* Pinned Items */}
+                  {pinnedConversations.status === "pending" ? (
                     <p className="text-center">Loading...</p>
-                  ) : status === "error" ? (
-                    <span>Error: {error.message}</span>
+                  ) : pinnedConversations.status === "error" ? (
+                    <span>Error: {pinnedConversations.error.message}</span>
                   ) : (
-                    <ul>
-                      {data?.pages.map((page, i) => (
-                        <Fragment key={page.nextToken || i}>
-                          {page?.data?.map((item) => (
-                            <NavConversations item={item} key={item.id} />
+                    <>
+                      {pinnedConversations.data && pinnedConversations.data.length ? (
+                        <>
+                          <div
+                            onClick={() => setIsPinnedOpen((v) => !v)}
+                            className={`flex items-center justify-between text-base text-gray-900/50 dark:text-white/50 font-semibold transition-[width_padding] duration-300 mt-2 cursor-pointer select-none hover:text-gray-900/80 dark:hover:text-white/80 ${isNavOpen && "px-2"}`}
+                          >
+                            <span>Pinned</span>
+                            <ChevronDown
+                              className={`size-4 transition-transform duration-200 ${!isPinnedOpen ? "-rotate-90" : ""}`}
+                            />
+                          </div>
+                          {isPinnedOpen && (
+                            <ul>
+                              {pinnedConversations.data?.map((item) => (
+                                <NavConversations
+                                  item={item}
+                                  key={item.id}
+                                  conversation={conversation}
+                                  conversationEdit={conversationEdit}
+                                  conversationOptionHeight={conversationOptionHeight}
+                                  setConversation={setConversation}
+                                  setConversationOptionOpen={setConversationOptionOpen}
+                                  setConversationOptionPosition={setConversationOptionPosition}
+                                  setConversationEdit={setConversationEdit}
+                                />
+                              ))}
+                            </ul>
+                          )}
+                        </>
+                      ) : (
+                        ""
+                      )}
+                    </>
+                  )}
+
+                  <div
+                    onClick={() => setIsRecentOpen((v) => !v)}
+                    className={`flex items-center justify-between text-base text-gray-900/50 dark:text-white/50 font-semibold transition-[width_padding] duration-300 mt-2 cursor-pointer select-none hover:text-gray-900/80 dark:hover:text-white/80 ${isNavOpen && "px-2"}`}
+                  >
+                    <span>Recents</span>
+                    <ChevronDown
+                      className={`size-4 transition-transform duration-200 ${!isRecentOpen ? "-rotate-90" : ""}`}
+                    />
+                  </div>
+                  {isRecentOpen && (
+                    <>
+                      {status === "pending" ? (
+                        <p className="text-center">Loading...</p>
+                      ) : status === "error" ? (
+                        <span>Error: {error.message}</span>
+                      ) : (
+                        <ul>
+                          {data?.pages.map((page, i) => (
+                            <Fragment key={page.nextToken || i}>
+                              {page?.data?.map((item) => (
+                                <NavConversations
+                                  item={item}
+                                  key={item.id}
+                                  conversation={conversation}
+                                  conversationEdit={conversationEdit}
+                                  conversationOptionHeight={conversationOptionHeight}
+                                  setConversation={setConversation}
+                                  setConversationOptionOpen={setConversationOptionOpen}
+                                  setConversationOptionPosition={setConversationOptionPosition}
+                                  setConversationEdit={setConversationEdit}
+                                />
+                              ))}
+                            </Fragment>
                           ))}
-                        </Fragment>
-                      ))}
-                      <li ref={loaderRef} className="text-center w-full py-4 min-h-4">
-                        {isFetchingNextPage && <p>Loading...</p>}
-                        {error && <p>Error</p>}
-                      </li>
-                    </ul>
+                          <li ref={loaderRef} className="text-center w-full py-4 min-h-4">
+                            {isFetchingNextPage && <p>Loading...</p>}
+                            {error && <p>Error</p>}
+                          </li>
+                        </ul>
+                      )}
+                    </>
                   )}
                 </>
               )}
@@ -144,6 +222,15 @@ export default function NavBar(): React.ReactElement {
       </div>
 
       {/* Chat options menu */}
+      <ConversationOptions
+        conversation={conversation}
+        conversationOptionOpen={conversationOptionOpen}
+        conversationOptionPosition={conversationOptionPosition}
+        setConversation={setConversation}
+        setConversationOptionOpen={setConversationOptionOpen}
+        setConversationOptionHeight={setConversationOptionHeight}
+        setConversationEdit={setConversationEdit}
+      />
     </>
   );
 }

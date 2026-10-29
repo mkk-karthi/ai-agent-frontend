@@ -23,27 +23,30 @@ export default function ChatMessages({
   regenerateContent,
   streamedText = "",
   isLoading = false,
+  isShared = false,
 }: {
   chatId: string;
-  setModelId: (v: string) => void;
-  setStreamedText: (v: string) => void;
-  regenerateContent: (v: string) => void;
+  setModelId?: (v: string) => void;
+  setStreamedText?: (v: string) => void;
+  regenerateContent?: (v: string) => void;
   streamedText?: string;
   isLoading?: boolean;
+  isShared?: boolean;
 }) {
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const navigate = useNavigate();
 
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
-    queryKey: ["coversationsMessage", chatId],
+    queryKey: [isShared ? "sharedCoversationsMessage" : "coversationsMessage", chatId],
     queryFn: async ({ pageParam }: { pageParam: string | null }): Promise<ChatMessagesType> => {
-      const data = await fetchService.get(
-        `/conversation/messages/${chatId}?nextToken=${pageParam}&pageSize=10`,
-      );
+      const endpoint = isShared
+        ? `/shared/conversation/messages/${chatId}?nextToken=${pageParam}&pageSize=10`
+        : `/conversation/messages/${chatId}?nextToken=${pageParam}&pageSize=10`;
+      const data = await fetchService.get(endpoint);
 
       if (data.code == 200) {
         if (data.data && data.data.data && data.data.data.length > 0) {
-          // if (pageParam == "") setModelId(data.data.data[0].modelId);
+          // if (pageParam == "") setModelId?.(data.data.data[0].modelId);
           return {
             ...data.data,
             data: data.data.data.map((v: ChatMessagesType["data"][0]) => ({
@@ -53,14 +56,14 @@ export default function ChatMessages({
             })),
           };
         } else return { data: [], nextToken: "" };
-      } else if (data.code == 404) {
+      } else if (data.code == 404 && !isShared) {
         navigate(`/new`, { replace: true });
         return { data: [], nextToken: "" };
       } else throw new Error(data.message);
     },
     initialPageParam: "",
     getNextPageParam: (lastPage) => {
-      return !!lastPage.nextToken ? lastPage.nextToken : undefined;
+      return lastPage.nextToken || undefined;
     },
   });
 
@@ -92,17 +95,17 @@ export default function ChatMessages({
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
 
-    if (data && data.pages[0].data[0] && data.pages.length > 0 && data.pages[0].data.length > 0) {
+    if (setModelId && data && data.pages[0].data[0] && data.pages.length > 0 && data.pages[0].data.length > 0) {
       setModelId(data.pages[0].data[0].modelId);
     }
-  }, [data, chatId]);
+  }, [data, chatId, setModelId]);
 
   useEffect(() => {
     if (!isLoading && streamedText) {
-      setStreamedText("");
-      queryClient.refetchQueries({ queryKey: ["coversationsMessage", chatId] });
+      setStreamedText?.("");
+      queryClient.refetchQueries({ queryKey: [isShared ? "sharedCoversationsMessage" : "coversationsMessage", chatId] });
     }
-  }, [isLoading]);
+  }, [isLoading, isShared, chatId, setStreamedText, streamedText]);
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
@@ -184,9 +187,9 @@ export default function ChatMessages({
                       <ChatMessage
                         key={item.id}
                         item={item}
-                        isEdit={item.role === "USER" && i === 0 && j === 1 && !isLoading}
-                        isRetry={i === 0 && j === 0 && !isLoading}
-                        regenerateContent={regenerateContent}
+                        isEdit={!isShared && item.role === "USER" && i === 0 && j === 1 && !isLoading}
+                        isRetry={!isShared && i === 0 && j === 0 && !isLoading}
+                        regenerateContent={regenerateContent ?? (() => {})}
                       />
                     ),
                 )}

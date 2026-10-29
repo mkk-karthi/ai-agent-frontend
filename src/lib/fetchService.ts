@@ -72,8 +72,8 @@ const handleResponse = async (
   });
 
   if (response.status === 401) {
-    // For auth endpoints, don't attempt to refresh token
-    if (url.startsWith("/auth/")) {
+    // For auth and shared endpoints, don't attempt to refresh token
+    if (url.startsWith("/auth/") || url.startsWith("/shared/")) {
       if (url === "/auth/token") {
         handleUnauthorized();
         throw new Error("Unauthorized");

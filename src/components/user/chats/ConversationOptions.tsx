@@ -1,6 +1,5 @@
-import { Pencil, Share, Trash } from "lucide-react";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { ConversationContext } from "../../../context/conversationContext";
+import { Pencil, Pin, PinOff, Share, Trash } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -9,25 +8,36 @@ import { fetchService } from "../../../lib/fetchService";
 import Modal from "../../ui/Modal";
 import { useNavigate, useParams } from "react-router-dom";
 import { queryClient } from "../../../lib/queryClient";
+import type { ChatType } from "../../../types/conversation";
+import ShareConversation from "./ShareConversation";
 
-export default function ConversationOptions() {
-  const {
-    conversationId,
-    conversationOptionOpen,
-    conversationOptionPosition,
-    setConversationId,
-    setConversationOptionOpen,
-    setConversationOptionHeight,
-    setConversationEdit,
-  } = useContext(ConversationContext);
+export default function ConversationOptions({
+  conversation,
+  conversationOptionOpen,
+  conversationOptionPosition,
+  setConversation,
+  setConversationOptionOpen,
+  setConversationOptionHeight,
+  setConversationEdit,
+}: {
+  conversation: ChatType | null;
+  conversationOptionOpen: boolean;
+  conversationOptionPosition: DOMRect | null;
+  setConversation: (v: ChatType | null) => void;
+  setConversationEdit: (v: boolean) => void;
+  setConversationOptionOpen: (v: boolean) => void;
+  setConversationOptionHeight: (v: number) => void;
+}) {
   const { id } = useParams();
 
   const chatOptionMenuRef = useRef<HTMLUListElement>(null);
   const [isDelete, setDelete] = useState(false);
+  const [isShareOpen, setShareOpen] = useState(false);
+  const [shareConversationId, setShareConversationId] = useState<string | null>(null);
 
   useOutsideClick(
     chatOptionMenuRef,
-    () => (setConversationOptionOpen(false), setConversationId(null)),
+    () => (setConversationOptionOpen(false), setConversation(null)),
     conversationOptionOpen,
   );
 
@@ -39,7 +49,7 @@ export default function ConversationOptions() {
   const navigate = useNavigate();
   const mutation = useMutation({
     mutationFn: async () => {
-      const response = await fetchService.delete(`/conversation/${conversationId}`);
+      const response = await fetchService.delete(`/conversation/${conversation?.id}`);
       return response;
     },
     onSuccess: (data: apiResponse<null>) => {
@@ -47,14 +57,38 @@ export default function ConversationOptions() {
         toast.success(data.message);
         queryClient.invalidateQueries({ queryKey: ["coversations"] });
 
-        if (id == conversationId) navigate("/new");
+        if (id == conversation?.id) navigate("/new");
         setDelete(false);
 
-        setConversationId(null);
+        setConversation(null);
       } else toast.error(data.message);
     },
     onError: (error) => {
-      setConversationId(null);
+      setConversation(null);
+      toast.error(error.message);
+    },
+  });
+
+  const pinMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetchService.put(`/conversation/pin/${conversation?.id}`, {
+        isPinned: !(conversation?.isPinned),
+      });
+      return response;
+    },
+    onSuccess: (data: apiResponse<null>) => {
+      if (data.success) {
+        toast.success(data.message);
+        queryClient.invalidateQueries({ queryKey: ["coversations"] });
+        queryClient.invalidateQueries({ queryKey: ["pinnedCoversations"] });
+
+        setConversationOptionOpen(false);
+        setConversation(null);
+      } else toast.error(data.message);
+    },
+    onError: (error) => {
+      setConversationOptionOpen(false);
+      setConversation(null);
       toast.error(error.message);
     },
   });
@@ -65,9 +99,16 @@ export default function ConversationOptions() {
   }, [setConversationOptionOpen, setConversationEdit]);
 
   const handleShare = useCallback(() => {
+    if (conversation) {
+      setShareConversationId(conversation.id);
+      setShareOpen(true);
+    }
     setConversationOptionOpen(false);
-    setConversationId(null);
-  }, [setConversationOptionOpen, setConversationId]);
+  }, [conversation, setConversationOptionOpen]);
+
+  const handlePin = useCallback(() => {
+    pinMutation.mutate();
+  }, [pinMutation]);
 
   const handleDelete = useCallback(() => {
     setConversationOptionOpen(false);
@@ -88,19 +129,26 @@ export default function ConversationOptions() {
           top: conversationOptionPosition ? conversationOptionPosition.top : 0,
         }}
       >
-        {/* <li
-          onClick={handleShare}
+        <li
+          onClick={handlePin}
           className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"
         >
-          <Share className="size-4" />
-          <span className="ml-2">Share</span>
-        </li> */}
+          {conversation?.isPinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+          <span className="ml-2">{conversation?.isPinned ? "Un Pin" : "Pin"}</span>
+        </li>
         <li
           onClick={handleRename}
           className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"
         >
           <Pencil className="size-4" />
           <span className="ml-2">Rename</span>
+        </li>
+        <li
+          onClick={handleShare}
+          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"
+        >
+          <Share className="size-4" />
+          <span className="ml-2">Share</span>
         </li>
         <li
           onClick={handleDelete}
@@ -138,6 +186,17 @@ export default function ConversationOptions() {
           </div>
         </div>
       </Modal>
+
+      <ShareConversation
+        isModalOpen={isShareOpen}
+        onModalUpdate={(val) => {
+          setShareOpen(val);
+          if (!val) {
+            setConversation(null);
+          }
+        }}
+        conversationId={shareConversationId}
+      />
     </>
   );
 }
