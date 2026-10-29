@@ -59,7 +59,7 @@ export default function NavBar() {
                 <NavLink
                   to={item.link}
                   className={({ isActive }) =>
-                    `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden ${isNavOpen ? "p-2" : "p-2 m-auto"} ${isActive && "bg-gray-900/5 dark:bg-white/5"}`
+                    `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden p-2 ${isNavOpen ? "" : "m-auto"} ${isActive && "bg-gray-900/5 dark:bg-white/5"}`
                   }
                 >
                   {item.icon}

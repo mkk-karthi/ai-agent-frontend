@@ -47,7 +47,7 @@ export default function GoogleCallback(): React.ReactElement {
         const user = res.data;
         setUser(user);
 
-        if (!["xs", "sm", "md"].includes(breakpoint)) setNavBarOpen(true);
+        if (!["xs", "sm"].includes(breakpoint)) setNavBarOpen(true);
 
         queryClient.invalidateQueries({ queryKey: ["coversations"] });
 

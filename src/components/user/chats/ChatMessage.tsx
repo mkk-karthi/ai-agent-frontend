@@ -25,7 +25,7 @@ export default function ChatMessage({
 
   return (
     <div
-      className={`flex flex-col my-2 lg:m-4 px-4 ${item.role === "USER" ? "justify-end items-end" : "justify-start"}`}
+      className={`flex flex-col my-2 md:m-4 px-4 ${item.role === "USER" ? "justify-end items-end" : "justify-start"}`}
     >
       <div
         className={`${item.role === "USER" ? "w-fit max-w-3/4 ml-auto bg-gray-200 dark:bg-gray-800/80 rounded-4xl text-left" : "w-full"} px-4 py-2`}

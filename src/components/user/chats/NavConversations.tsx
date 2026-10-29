@@ -105,10 +105,10 @@ export default function NavConversations({
   };
 
   const navOpen = useCallback(() => {
-    if (["xs", "sm", "md"].includes(breakpoint)) {
+    if (["xs", "sm"].includes(breakpoint)) {
       setNavBarOpen(false);
     }
-  }, [conversationEdit, conversation]);
+  }, [breakpoint, setNavBarOpen]);
 
   return (
     <li className={`${isNavOpen ? "my-1" : "my-0"}`} title={item.name}>
@@ -127,13 +127,13 @@ export default function NavConversations({
           />
           {isLoading ? (
             <Loader
-              className={`opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity size-8 px-2 py-1`}
+              className={`opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity size-8 px-2 py-1`}
             />
           ) : (
             <Check
               type="submit"
               onClick={handleRenameSubmit}
-              className={`opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity size-8 px-2 py-1`}
+              className={`opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity size-8 px-2 py-1`}
             />
           )}
         </form>
@@ -151,7 +151,7 @@ export default function NavConversations({
             {item.name}
           </div>
           <EllipsisVertical
-            className={`opacity-100 lg:opacity-0 ${conversationEdit && conversation?.id === item.id ? "" : "group-hover:opacity-100"} transition-opacity ${isNavOpen ? "size-8 px-2 py-1" : "size-0"}`}
+            className={`opacity-100 md:opacity-0 ${conversationEdit && conversation?.id === item.id ? "" : "group-hover:opacity-100"} transition-opacity ${isNavOpen ? "size-8 px-2 py-1" : "size-0"}`}
             onClick={(e) => openOptions(e, item)}
           />
         </NavLink>

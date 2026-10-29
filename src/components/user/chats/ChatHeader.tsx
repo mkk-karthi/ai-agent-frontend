@@ -63,7 +63,7 @@ export default function ChatHeader({
 
   return (
     <>
-      <div className="absolute top-0 left-12 lg:left-0 w-[calc(100%-56px)] lg:w-full min-h-14 flex justify-between p-4 z-2">
+      <div className="absolute top-0 left-12 md:left-0 w-[calc(100%-56px)] md:w-full min-h-14 flex justify-between p-4 z-2">
         <div className="group/menu">
           <div
             className="flex items-center justify-between gap-x-2 cursor-pointer rounded-xl bg-white dark:bg-gray-950 p-2 min-w-46"
@@ -80,7 +80,7 @@ export default function ChatHeader({
           {!isError && (
             <ul
               ref={modelsMenuRef}
-              className={`absolute left-6 lg:left-2 top-12 min-w-42 ${modelsOpen ? "block pointer-events-auto" : "hidden pointer-events-none"} transition-all duration-300 mt-2 w-auto rounded-md shadow-lg border border-gray-400 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 max-h-72 overflow-y-auto`}
+              className={`absolute left-6 md:left-2 top-12 min-w-42 ${modelsOpen ? "block pointer-events-auto" : "hidden pointer-events-none"} transition-all duration-300 mt-2 w-auto rounded-md shadow-lg border border-gray-400 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 max-h-72 overflow-y-auto`}
             >
               {isLoading
                 ? "Loading"
@@ -118,11 +118,11 @@ export default function ChatHeader({
         </div>
         {chatId === "new" || !canShare ? null : (
           <div
-            className="flex items-center px-2.5 py-2 size-9.5 lg:size-auto bg-white dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-full shadow-[0_0_5px_3px] shadow-gray-600/30 cursor-pointer"
+            className="flex items-center px-2.5 py-2 size-9.5 md:size-auto bg-white dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-full shadow-[0_0_5px_3px] shadow-gray-600/30 cursor-pointer"
             onClick={() => openShareModel(true)}
           >
             <Share className="size-4 cursor-pointer" />
-            <span className="ml-2 hidden lg:block text-balance">Share</span>
+            <span className="ml-2 hidden md:block text-balance">Share</span>
           </div>
         )}
       </div>

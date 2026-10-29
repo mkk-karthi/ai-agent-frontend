@@ -67,11 +67,11 @@ export default function NavBar(): React.ReactElement {
   return (
     <>
       <div
-        className={`fixed lg:relative z-20 transition-all duration-300 ${isNavOpen ? "inset-0 backdrop-blur-sm lg:backdrop-blur-none" : "-left-full lg:left-0"}`}
+        className={`fixed md:relative z-20 transition-all duration-300 ${isNavOpen ? "inset-0 backdrop-blur-sm md:backdrop-blur-none" : "-left-full md:left-0"}`}
         onMouseDown={() => setNavBarOpen(false)}
       >
         <div
-          className={`bg-gray-100 dark:bg-gray-900 h-auto min-h-dvh border-r border-gray-800/20 dark:border-white/10 p-2 z-15 transition-all duration-300 ${isNavOpen ? "fixed lg:relative w-72 lg:w-[20dvw]" : "min-w-0 -translate-x-full lg:translate-x-0 w-12"}`}
+          className={`bg-gray-100 dark:bg-gray-900 h-auto min-h-dvh border-r border-gray-800/20 dark:border-white/10 p-2 z-15 transition-all duration-300 ${isNavOpen ? "fixed md:relative w-72 lg:w-[20dvw]" : "min-w-0 -translate-x-full md:translate-x-0 w-12"}`}
           onMouseDown={(event) => event.stopPropagation()}
         >
           <div className="group relative cursor-pointer h-10 mt-2">
@@ -98,7 +98,7 @@ export default function NavBar(): React.ReactElement {
               <li className="my-1">
                 <NavLink
                   to="/new"
-                  onClick={() => ["xs", "sm", "md"].includes(breakpoint) && setNavBarOpen(false)}
+                  onClick={() => ["xs", "sm"].includes(breakpoint) && setNavBarOpen(false)}
                   className={({ isActive }) =>
                     `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden ${isNavOpen ? "px-2 py-1" : "p-2 m-auto"} ${isActive && "bg-gray-900/5 dark:bg-white/5"}`
                   }
@@ -112,7 +112,7 @@ export default function NavBar(): React.ReactElement {
               <li className="my-1">
                 <div
                   onClick={() => (
-                    ["xs", "sm", "md"].includes(breakpoint) && setNavBarOpen(false),
+                    ["xs", "sm"].includes(breakpoint) && setNavBarOpen(false),
                     setSearchModelOpen(true)
                   )}
                   className={`flex justify-start items-center rounded hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden ${isNavOpen ? "px-2 py-1" : "p-2 m-auto"}`}

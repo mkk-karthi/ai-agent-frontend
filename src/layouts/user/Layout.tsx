@@ -26,7 +26,7 @@ export default function Layout() {
         <ConversationProvider>
           {/* Sidebar */}
           <NavBar />
-          <div className={`transition-all duration-300 w-dvw ${isNavOpen && "lg:w-[80dvw]"}`}>
+          <div className={`transition-all duration-300 w-dvw ${isNavOpen ? "md:w-[calc(100dvw-18rem)] lg:w-[80dvw]" : "md:w-[calc(100dvw-3rem)]"}`}>
             {/* header */}
             <Header />
 

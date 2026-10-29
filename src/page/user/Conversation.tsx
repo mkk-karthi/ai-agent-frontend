@@ -239,10 +239,10 @@ export default function Conversation(): React.ReactElement {
 
       {(isNew || canShowChat) && (
         <div
-          className={`absolute flex flex-col items-center w-full transition-all duration-300 ${isNew ? "top-1/3" : "bottom-0 lg:bottom-8 z-2"}`}
+          className={`absolute flex flex-col items-center w-full px-4 md:px-8 transition-all duration-300 ${isNew ? "top-1/3" : "bottom-4 md:bottom-8 z-2"}`}
         >
           <div
-            className={`${isNew && !generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8`}
+            className={`${isNew && !generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8 text-center`}
           >
             Ask your query,
             <span className="lowercase first-letter:uppercase ml-2">{user?.firstName}</span>
@@ -254,7 +254,7 @@ export default function Conversation(): React.ReactElement {
           </div>
           <PromptInput
             ref={promptRef}
-            className="w-sm md:w-3xl"
+            className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl shadow-lg dark:shadow-gray-950/50"
             sendMessage={generateContent}
             isLoading={generateMutation.isPending || retryMutation.isPending}
           />

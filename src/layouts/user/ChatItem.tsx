@@ -26,7 +26,7 @@ export default function ChatItem({
       <li className={`relative ${menuOpen ? "my-1" : "my-0"}`} key={item.id}>
         <NavLink
           to={item.link}
-          onClick={() => ["xs", "sm", "md"].includes(breakpoint) && onMenuOpen(false)}
+          onClick={() => ["xs", "sm"].includes(breakpoint) && onMenuOpen(false)}
           className={({ isActive }) =>
             `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer ${menuOpen && "pl-4 pr-2 py-1"} ${isActive && "bg-gray-900/5 dark:bg-white/5"} group z-25`
           }

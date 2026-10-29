@@ -50,7 +50,7 @@ export default function SettingsMenu(): React.ReactElement {
     setSettingTab(value);
     setSettingsOpen(true);
     setMenuOpen(false);
-    ["xs", "sm", "md"].includes(breakpoint) && setNavBarOpen(false);
+    ["xs", "sm"].includes(breakpoint) && setNavBarOpen(false);
   };
 
   const handleLogout = () => {

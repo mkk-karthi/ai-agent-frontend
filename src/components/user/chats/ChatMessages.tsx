@@ -95,7 +95,13 @@ export default function ChatMessages({
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
 
-    if (setModelId && data && data.pages[0].data[0] && data.pages.length > 0 && data.pages[0].data.length > 0) {
+    if (
+      setModelId &&
+      data &&
+      data.pages[0].data[0] &&
+      data.pages.length > 0 &&
+      data.pages[0].data.length > 0
+    ) {
       setModelId(data.pages[0].data[0].modelId);
     }
   }, [data, chatId, setModelId]);
@@ -103,7 +109,9 @@ export default function ChatMessages({
   useEffect(() => {
     if (!isLoading && streamedText) {
       setStreamedText?.("");
-      queryClient.refetchQueries({ queryKey: [isShared ? "sharedCoversationsMessage" : "coversationsMessage", chatId] });
+      queryClient.refetchQueries({
+        queryKey: [isShared ? "sharedCoversationsMessage" : "coversationsMessage", chatId],
+      });
     }
   }, [isLoading, isShared, chatId, setStreamedText, streamedText]);
 
@@ -131,11 +139,11 @@ export default function ChatMessages({
     <>
       <div
         ref={chatContainerRef}
-        className="relative h-[calc(100dvh-2rem)] overflow-y-scroll px-4 lg:px-8 pb-12"
+        className="relative h-[calc(100dvh-2rem)] overflow-y-scroll px-4 md:px-8 pb-12"
         onScroll={handleScroll}
       >
         <div
-          className={`sticky top-[74vh] w-full flex justify-center z-15 ${showScrollBottom ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
+          className={`sticky top-[85vh] md:top-[75vh] w-full flex justify-center z-15 ${showScrollBottom ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
         >
           <ChevronDown
             size={32}
@@ -187,7 +195,9 @@ export default function ChatMessages({
                       <ChatMessage
                         key={item.id}
                         item={item}
-                        isEdit={!isShared && item.role === "USER" && i === 0 && j === 1 && !isLoading}
+                        isEdit={
+                          !isShared && item.role === "USER" && i === 0 && j === 1 && !isLoading
+                        }
                         isRetry={!isShared && i === 0 && j === 0 && !isLoading}
                         regenerateContent={regenerateContent ?? (() => {})}
                       />

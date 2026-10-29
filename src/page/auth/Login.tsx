@@ -45,7 +45,7 @@ export default function Login(): React.ReactElement {
 
           toast.success(data.message);
 
-          if (!["xs", "sm", "md"].includes(breakpoint)) setNavBarOpen(true);
+          if (!["xs", "sm"].includes(breakpoint)) setNavBarOpen(true);
 
           queryClient.invalidateQueries({ queryKey: ["coversations"] });
           if (data.data.user.roleId == 1) navigate("/admin", { viewTransition: true });
