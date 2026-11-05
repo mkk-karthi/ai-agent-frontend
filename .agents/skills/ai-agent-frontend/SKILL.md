@@ -34,14 +34,17 @@ frontend/
 │   │       ├── chats/
 │   │       │   ├── ChatHeader.tsx # Model details, conversation controls, title & share button
 │   │       │   ├── ChatMessages.tsx # Linear message timeline renderer (supports isShared)
+│   │       │   ├── ChatSkeleton.tsx # Loading skeleton placeholders for chat timeline
 │   │       │   ├── ConversationOptions.tsx # Conversation dropdown menu with share option
+│   │       │   ├── FileAttachment.tsx # Visual attachment pill with preview and remove triggers
+│   │       │   ├── FilePreviewModal.tsx # Attachment preview modal for documents & images
 │   │       │   ├── NavConversations.tsx # Sidebar with debounced search & infinite scroll
 │   │       │   ├── PromptInput.tsx # User input area with submit & abort triggers
 │   │       │   └── ShareConversation.tsx # Share modal (Restricted default, Public, Specific User)
 │   │       ├── settings/          # User settings modal (Profile, ChangePassword, Tokens, Usage)
 │   │       └── SearchModel.tsx    # Modal for discovering and switching active AI models
 │   ├── context/                   # React Context providers
-│   │   ├── conversationContext.tsx# Active conversation ID, model selection, draft state
+│   │   ├── conversationContext.tsx# Active conversation ID, model, draft state & scroll-to-bottom coordinator
 │   │   └── userContext.tsx        # Active user session context
 │   ├── hooks/                     # Custom performance & UI hooks
 │   │   ├── useBreakpoint.tsx      # Viewport responsive breakpoint detector
@@ -113,27 +116,57 @@ sequenceDiagram
 
 ## 💬 Conversation Lifecycle & Error Handling (`src/page/user/Conversation.tsx`)
 
-1. **Two-Stage Loading**:
+1. **Two-Stage Loading & Skeleton States**:
    - When mounting or navigating to `/c/:id`, `Conversation.tsx` first fetches the conversation record via `getConversation`.
+   - While conversations or messages load, `ChatSkeleton.tsx` renders smooth animated skeleton blocks in the message timeline.
    - If conversation retrieval fails (e.g. 404 Not Found or 403 Forbidden):
      - Displays a clear error banner/state with a **"New Conversation"** button directing the user to `/new`.
      - **Hides the prompt input completely** so invalid messages cannot be dispatched.
    - If conversation retrieval succeeds, proceeds to fetch conversation message history (`getConversationMessages`) and renders the chat timeline.
-2. **Dynamic Header SEO (`<MetaHead>`)**:
+2. **Prompt Input Lifecycle & Error Reversion**:
+   - On submit, `PromptInput.tsx` immediately clears the text prompt and any attached files.
+   - If a conversation creation or streaming error occurs, `restoreState(prompt, files)` is invoked via `promptInputRef` to instantly restore the user's text and attachments, preventing input loss.
+3. **Error Highlighting & Retry (`ChatMessage.tsx`)**:
+   - Assistant turns with `isError: true` render inside a distinct red-tinted alert card (`bg-red-50 dark:bg-red-950/30 border-red-300`) with an `AlertCircle` warning icon.
+   - Includes an active **Retry** button that re-triggers response generation from that point.
+4. **Dynamic Header SEO (`<MetaHead>`)**:
    - Hydrates document `<title>` with the active conversation title (or fallback "AI Agent - Conversational Intelligence Platform").
    - Applied consistently across user chat, shared conversations, admin dashboards, and settings.
 
 ---
 
-## ⚡ Core Streaming Protocol (`src/lib/fetchService.ts`)
+## ⚡ Centralized Fetch & Streaming Service (`src/lib/fetchService.ts`)
 
-1. **Chunk Healing**:
+1. **Centralized Response & 401 Token Refresh**:
+   - `handleResponse`: Standardized response parser. Automatically detects 401 Unauthorized responses, triggers token refresh (`/auth/refresh-token`), and seamlessly replays the failed request with the new access token.
+2. **Chunk Healing**:
    - High-throughput SSE chunks often arrive fused together (e.g. `}{`). `parseStreamResponse` automatically detects and inserts commas (`},{`) before parsing.
-2. **Event Types**:
+3. **Event Types**:
    - `coversation`: Receives created conversation UUID. Updates URL parameter (`/c/:id`).
    - `stream`: Appends real-time incremental text delta to current active message.
    - `error`: Displays toast notification and restores input prompt.
    - `end`: Marks streaming completion and triggers cache invalidation.
+4. **Multipart File Attachment Streaming**:
+   - Automatically packs prompt, model ID, conversation ID, and attached files into `FormData` when attachments exist, sending as `multipart/form-data` to the streaming endpoint.
+
+---
+
+## 📎 File Attachments & Preview Engine (`src/components/user/chats/`)
+
+1. **Attachment Upload & Badges (`PromptInput.tsx`, `FileAttachment.tsx`)**:
+   - Supports file selection and drag-and-drop for documents (PDF, Word, text, code) and images with filename deduplication.
+   - Attachment pills in `PromptInput.tsx` use responsive max-width (`max-w-44 sm:max-w-52 w-fit`), word ellipsis (`truncate min-w-0`), and `title` tooltips.
+   - Image cards in `FileAttachment.tsx` display full-width images (`w-full h-full object-cover`) in cards (`w-48 sm:w-52`) with truncated names and `title` attributes.
+2. **Interactive Preview Modal (`FilePreviewModal.tsx`)**:
+   - Clicking any attachment pill opens an interactive modal supporting text/code syntax viewing, image zoom, embedded PDF reader, and document metadata preview.
+3. **Authenticated Blob Streaming & Downloads (`src/hooks/useAttachmentUrl.ts`)**:
+   - Standard `<img>` and `<iframe>` elements cannot transmit `Authorization` headers. The `useAttachmentBlobUrl` hook fetches files as binary blobs using `fetchService.get(endpoint, undefined, "blob")` (passing Bearer tokens and auto-refreshing expired tokens) and transforms them into memory object URLs (`URL.createObjectURL(blob)`).
+   - Blob URLs are tied to TanStack Query caching and automatically revoked (`URL.revokeObjectURL`) upon component unmount to prevent memory leaks.
+   - `downloadAttachmentFile(endpoint, filename)` downloads protected attachments securely with authentication headers.
+4. **Dynamic Scroll-to-Bottom & Timeline Actions**:
+   - Floating scroll-to-bottom button is located in `PromptInput.tsx`, positioned dynamically at `bottom-full mb-3 left-1/2 -translate-x-1/2` based on variable input height.
+   - Coordinated via `ConversationContext` (`showScrollBottom`, `scrollToBottom`), triggered by scroll offset thresholds in `ChatMessages.tsx`.
+   - All user message turns in the conversation timeline support in-place editing, not only the most recent turn.
 
 ---
 
@@ -157,6 +190,7 @@ sequenceDiagram
 - `useInfinityScroll(callback)`: Encapsulates `IntersectionObserver` to trigger `fetchNextPage` automatically when the user scrolls near the bottom of lists.
 - `useBreakpoint()`: Responsive screen width breakpoint detection.
 - `useOutsideClick(ref, callback)`: Closes modals, dropdowns, and flyout menus when clicking outside.
+- `useAttachmentBlobUrl(endpoint, enabled)`: Asynchronously streams protected attachment binary blobs using TanStack Query, generates revocable Object URLs for `img` and `iframe` previews, and ensures clean lifecycle revocation without memory leaks.
 - `useRecaptcha()`: Dynamically loads Google reCAPTCHA v3 script on unauthorized authentication pages (`Login`, `SignUp`, `ResetPassword`) with automatic cleanup hiding the `.grecaptcha-badge` upon unmount or navigating to authorized pages.
 
 ---
@@ -206,9 +240,11 @@ sequenceDiagram
 ## ⚙️ Development & Verification Runbook
 
 ### Prerequisites
+
 - Node.js v18+
 
 ### Commands
+
 ```bash
 # Start development server (runs on http://localhost:3000 or http://localhost:5173)
 npm run dev
@@ -224,10 +260,19 @@ npm run preview
 
 ## ⚠️ Critical Rules & Conventions
 
-- **Tailwind CSS v4**: Use modern utility classes with responsive variants (`sm:`, `md:`, `lg:`).
+- **Tailwind CSS v4 & Unit Conventions**:
+  - **NEVER use arbitrary pixel classes like `xx-[100px]` or `[...px]`** (e.g. `h-[100px]`, `min-h-[300px]`, `max-w-[150px]`, `text-[10px]`).
+  - **Always convert pixel values to standard Tailwind units using `value = px / 4`**:
+    - `h-[100px]` => `h-25` (100 / 4)
+    - `min-h-[300px]` => `min-h-75` (300 / 4)
+    - `max-w-[150px]` => `max-w-37.5` (150 / 4)
+    - `max-w-[200px]` => `max-w-50` (200 / 4)
+  - **Typography**: Always use standard typography scale classes (`text-xs`, `text-sm`, `text-base`, etc.) instead of arbitrary pixel font sizes like `text-[10px]`.
+  - Use modern utility classes with responsive variants (`sm:`, `md:`, `lg:`).
 - **Optimistic Updates**: Render user prompts immediately in the timeline before network responses resolve.
 - **Debounced Search**: Always debounce search inputs to preserve API bandwidth.
 - **Safe Keys**: API calls must pass through `fetchService.ts` or `common.ts` with proper token interception.
 - **Header Metadata**: Always use `<MetaHead>` on route page views to ensure accurate dynamic document titles and OpenGraph tags.
-- **Environment Protection**: **NEVER read or write `.env` files**. Use `.env.example` as the canonical template for variable names and schemas.
-
+- **Strict Repository Isolation**: Frontend and backend are separate, independent repositories. NEVER create common/root README files, root agent configs, or shared parent files outside the `frontend/` directory.
+- **Environment Protection**: **NEVER read or write `.env` files under any circumstances**. Never inspect, read, print, or modify `.env` or any sensitive credential files. Use `.env.example` as the canonical reference template for variable names and schemas.
+- **No Direct Database Queries**: **NEVER read, execute, or write raw database queries**. All data operations must remain within frontend application state and API client conventions.

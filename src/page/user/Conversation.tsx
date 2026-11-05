@@ -1,8 +1,12 @@
 import ChatHeader from "../../components/user/chats/ChatHeader";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import PromptInput, { type PromptInputRef } from "../../components/user/chats/PromptInput";
+import { useCallback, useContext, useRef, useState } from "react";
+import PromptInput, {
+  type PromptInputRef,
+  type PromptInputState,
+} from "../../components/user/chats/PromptInput";
 import { useNavigate, useParams } from "react-router-dom";
 import ChatMessages from "../../components/user/chats/ChatMessages";
+import ChatSkeleton from "../../components/user/chats/ChatSkeleton";
 import { useUserStore } from "../../stores/UserStore";
 import { fetchService } from "../../lib/fetchService";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -10,7 +14,7 @@ import { ConversationContext } from "../../context/conversationContext";
 import { toast } from "react-toastify";
 import { AlertCircle, Loader, SquarePen } from "lucide-react";
 import { queryClient } from "../../lib/queryClient";
-import type { ConversationType } from "../../types/conversation";
+import type { AttachmentType, ConversationType } from "../../types/conversation";
 import MetaHead from "../../components/common/MetaHead";
 
 export default function Conversation(): React.ReactElement {
@@ -22,6 +26,7 @@ export default function Conversation(): React.ReactElement {
   const [streamedText, setStreamedText] = useState("");
   const [modelId, setModelId] = useState("");
   const promptRef = useRef<PromptInputRef>(null);
+  const pendingPromptBackupRef = useRef<PromptInputState | null>(null);
   const { setEditData } = useContext(ConversationContext);
 
   const { user } = useUserStore.getState();
@@ -45,60 +50,66 @@ export default function Conversation(): React.ReactElement {
     retry: false,
   });
 
-  useEffect(() => {
-    promptRef.current?.reset();
-  }, [id]);
-
   const parseStreamResponse = (str: string) => {
     if (!str || !str.trim()) return [];
 
-    try {
-      // Convert the fused chunks into a clean valid JSON array layout
-      const formatted = "[" + str.replace(/}{/g, "},{") + "]";
-      return JSON.parse(formatted);
-    } catch (err) {
-      // FALLBACK: regex grabs every individual {"type": ... } object blocks independently
-      const matchRegex = /{"type":"[^]*?","text":"[^]*?"}/g;
-      const results = [];
-      let match;
+    const results: Array<{ type: "start" | "stream" | "error" | "end"; text: string }> = [];
+    let start = -1;
+    let depth = 0;
+    let inString = false;
+    let isEscaped = false;
 
-      while ((match = matchRegex.exec(str)) !== null) {
-        try {
-          results.push(JSON.parse(match[0]));
-        } catch (e) {
-          console.error(e);
-          continue;
+    for (let i = 0; i < str.length; i++) {
+      const char = str[i];
+
+      if (inString) {
+        if (isEscaped) {
+          isEscaped = false;
+        } else if (char === "\\") {
+          isEscaped = true;
+        } else if (char === '"') {
+          inString = false;
+        }
+        continue;
+      }
+
+      if (char === '"') {
+        inString = true;
+      } else if (char === "{") {
+        if (depth === 0) start = i;
+        depth++;
+      } else if (char === "}") {
+        depth--;
+        if (depth === 0 && start !== -1) {
+          const jsonStr = str.slice(start, i + 1);
+          try {
+            results.push(JSON.parse(jsonStr));
+          } catch (e) {
+            console.error("Failed to parse JSON stream token:", jsonStr, e);
+          }
+          start = -1;
         }
       }
-      console.log(results);
-      return results;
     }
+
+    return results;
   };
 
-  const handleStreamResponse = (chunk: string, prompt: string, editId?: string) => {
+  const handleStreamResponse = (
+    chunk: string,
+    _prompt: string,
+    activeConversationId: string,
+    editId?: string,
+  ) => {
     const chunks = parseStreamResponse(chunk);
 
-    chunks.forEach((v: { type: "coversation" | "stream" | "error" | "end"; text: string }) => {
-      if (v.type == "coversation") {
-        const coversation = JSON.parse(v.text);
-
-        if (editId) setEditData(null);
-        promptRef.current?.reset();
-
-        queryClient.setQueryData(["conversation", coversation.id], coversation);
-
-        if (isNew) {
-          navigate(`/${coversation.id}`, { replace: true });
-          queryClient.invalidateQueries({ queryKey: ["coversations"] });
-        }
-        queryClient.refetchQueries({
-          queryKey: ["coversationsMessage", coversation.id],
-        });
-      } else if (v.type == "stream") {
+    chunks.forEach((v: { type: "start" | "stream" | "error" | "end"; text: string }) => {
+      if (v.type === "start") {
+        pendingPromptBackupRef.current = null;
+        promptRef.current?.clear();
+      } else if (v.type === "stream") {
         setStreamedText((prev) => prev + v.text);
-      } else if (v.type == "error") {
-        console.log("streaming error", v.text);
-
+      } else if (v.type === "error") {
         try {
           const error = JSON.parse(v.text);
           toast.error(error.message);
@@ -106,44 +117,153 @@ export default function Conversation(): React.ReactElement {
           toast.error(v.text);
         }
 
-        promptRef.current?.setPrompt(prompt);
-      } else if (v.type == "end") {
-        // if (conversationId) {
-        //   queryClient.refetchQueries({
-        //     queryKey: ["coversationsMessage", conversationId],
-        //   });
-        // }
+        if (pendingPromptBackupRef.current) {
+          promptRef.current?.restoreState(pendingPromptBackupRef.current);
+          pendingPromptBackupRef.current = null;
+        }
+      } else if (v.type === "end") {
+        pendingPromptBackupRef.current = null;
+        if (editId) setEditData(null);
+        promptRef.current?.clear();
+        queryClient.invalidateQueries({ queryKey: ["coversations"] });
+      }
+
+      if (v.type !== "stream") {
+        queryClient.refetchQueries({
+          queryKey: ["coversationsMessage", activeConversationId],
+        });
       }
     });
   };
 
   const generateMutation = useMutation({
-    mutationFn: async ({ prompt, editId }: { prompt: string; editId?: string }) => {
+    mutationFn: async ({
+      prompt,
+      editId,
+      files,
+      attachmentIds,
+    }: {
+      prompt: string;
+      editId?: string;
+      files?: File[];
+      attachmentIds?: string[];
+    }) => {
       setStreamedText("");
+
+      let targetConversationId = id;
+
+      // If this is a new conversation, first create it via the dedicated create endpoint
+      if (isNew) {
+        let createRes;
+        try {
+          const clientTimezone =
+            typeof Intl !== "undefined"
+              ? Intl.DateTimeFormat().resolvedOptions().timeZone
+              : undefined;
+          const clientLocale = typeof navigator !== "undefined" ? navigator.language : undefined;
+
+          createRes = await fetchService.post<{ id: string; name: string }>(
+            "/conversation/create",
+            {
+              modelId: Number(modelId),
+              prompt,
+              timezone: clientTimezone,
+              locale: clientLocale,
+            },
+          );
+        } catch (createErr) {
+          if (pendingPromptBackupRef.current) {
+            promptRef.current?.restoreState(pendingPromptBackupRef.current);
+            pendingPromptBackupRef.current = null;
+          }
+          throw createErr;
+        }
+
+        if (createRes.code !== 201 || !createRes.data) {
+          if (pendingPromptBackupRef.current) {
+            promptRef.current?.restoreState(pendingPromptBackupRef.current);
+            pendingPromptBackupRef.current = null;
+          }
+          throw new Error(createRes.message || "Failed to create conversation");
+        }
+
+        const newConversation = createRes.data;
+        targetConversationId = newConversation.id;
+
+        queryClient.setQueryData(["conversation", targetConversationId], newConversation);
+        navigate(`/${targetConversationId}`, { replace: true });
+        queryClient.invalidateQueries({ queryKey: ["coversations"] });
+      }
+
+      // Stream message into the conversation
+      const formData = new FormData();
+      formData.append("prompt", prompt);
+      formData.append("modelId", modelId);
+      formData.append("conversationId", targetConversationId);
+      if (editId) formData.append("id", editId);
+      if (typeof Intl !== "undefined") {
+        try {
+          formData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
+        } catch {}
+      }
+      if (typeof navigator !== "undefined") {
+        try {
+          formData.append("locale", navigator.language);
+        } catch {}
+      }
+      if (attachmentIds && attachmentIds.length > 0) {
+        attachmentIds.forEach((attId) => {
+          formData.append("attachmentIds", attId);
+        });
+      }
+      if (files && files.length > 0) {
+        files.forEach((file) => {
+          formData.append("files", file);
+        });
+      }
+
       const response = await fetchService.stream(
         "/conversation/generate-stream-content",
-        { prompt, modelId, conversationId: isNew ? "" : id, id: editId ?? "" },
+        formData,
         {},
-        (chunk) => handleStreamResponse(chunk, prompt, editId),
+        (chunk) => handleStreamResponse(chunk, prompt, targetConversationId, editId),
       );
 
       if (!response.success) {
-        toast.error(response.message);
+        if (pendingPromptBackupRef.current) {
+          promptRef.current?.restoreState(pendingPromptBackupRef.current);
+          pendingPromptBackupRef.current = null;
+        }
+        toast.error((response as any).message || "Failed to generate response");
       }
     },
-    onError: (error) => {
-      console.log("error", error);
+    onError: (error: any) => {
+      console.error(error);
+      if (pendingPromptBackupRef.current) {
+        promptRef.current?.restoreState(pendingPromptBackupRef.current);
+        pendingPromptBackupRef.current = null;
+      }
       toast.error(error.message);
     },
   });
+
   const retryMutation = useMutation({
     mutationFn: async ({ editId }: { editId?: string }) => {
       setStreamedText("");
+      const clientTimezone =
+        typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined;
+      const clientLocale = typeof navigator !== "undefined" ? navigator.language : undefined;
+
       const response = await fetchService.stream(
         "/conversation/retry-stream-content",
-        { prompt, conversationId: id, id: editId },
+        {
+          conversationId: id,
+          id: editId,
+          timezone: clientTimezone,
+          locale: clientLocale,
+        },
         {},
-        (chunk) => handleStreamResponse(chunk, "", editId),
+        (chunk) => handleStreamResponse(chunk, "", id, editId),
       );
 
       if (!response.success) {
@@ -151,15 +271,42 @@ export default function Conversation(): React.ReactElement {
       }
     },
     onError: (error) => {
-      console.log("error", error);
+      console.error(error);
       toast.error(error.message);
     },
   });
 
+  // useEffect(() => {
+  //   if (!generateMutation.isPending) {
+  //     promptRef.current?.clear();
+  //     setEditData(null);
+  //   }
+  // }, [id, generateMutation.isPending]);
+
   const generateContent = useCallback(
-    (data: { id: string; prompt: string }) => {
-      if (!generateMutation.isPending)
-        generateMutation.mutate({ prompt: data.prompt, editId: data.id });
+    (data: {
+      id: string;
+      prompt: string;
+      rawPrompt?: string;
+      files?: File[];
+      attachmentIds?: string[];
+      existingAttachments?: AttachmentType[];
+    }) => {
+      if (!generateMutation.isPending) {
+        pendingPromptBackupRef.current = {
+          prompt: data.rawPrompt ?? data.prompt,
+          files: data.files,
+          existingAttachments: data.existingAttachments,
+          editId: data.id,
+        };
+
+        generateMutation.mutate({
+          prompt: data.prompt,
+          editId: data.id,
+          files: data.files,
+          attachmentIds: data.attachmentIds,
+        });
+      }
     },
     [generateMutation],
   );
@@ -168,7 +315,7 @@ export default function Conversation(): React.ReactElement {
     (id: string) => {
       if (!retryMutation.isPending) retryMutation.mutate({ editId: id });
     },
-    [generateMutation],
+    [retryMutation],
   );
 
   const canShowChat =
@@ -197,8 +344,8 @@ export default function Conversation(): React.ReactElement {
       <ChatHeader chatId={id} modelId={modelId} setModelId={setModelId} canShare={canShare} />
 
       {!isNew && isConversationLoading && (
-        <div className="flex flex-col items-center justify-center w-full h-[calc(100%-120px)] pt-18 pb-10">
-          <Loader size={36} className="animate-[spin_2s_linear_infinite] text-gray-500" />
+        <div className="h-[calc(100dvh-2rem)] overflow-y-auto px-4 md:px-8 pb-12 pt-4">
+          <ChatSkeleton />
         </div>
       )}
 
@@ -239,7 +386,7 @@ export default function Conversation(): React.ReactElement {
 
       {(isNew || canShowChat) && (
         <div
-          className={`absolute flex flex-col items-center w-full px-4 md:px-8 transition-all duration-300 ${isNew ? "top-1/3" : "bottom-4 md:bottom-8 z-2"}`}
+          className={`absolute inset-x-0 flex flex-col items-center w-full px-4 md:px-8 transition-all duration-300 ${isNew ? "top-1/3" : "bottom-8 z-2"}`}
         >
           <div
             className={`${isNew && !generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8 text-center`}
@@ -248,9 +395,10 @@ export default function Conversation(): React.ReactElement {
             <span className="lowercase first-letter:uppercase ml-2">{user?.firstName}</span>
           </div>
           <div
-            className={`${isNew && generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8`}
+            className={`${isNew && generateMutation.isPending ? "flex items-center gap-2" : "hidden"} my-8 text-gray-600 dark:text-gray-300`}
           >
-            <Loader size={32} className="animate-[spin_2s_linear_infinite]" />
+            <Loader size={20} className="animate-spin text-blue-500" />
+            <span className="text-base font-medium">Starting conversation...</span>
           </div>
           <PromptInput
             ref={promptRef}

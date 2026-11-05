@@ -9,7 +9,6 @@ import MetaHead from "../../components/common/MetaHead";
 
 export default function EmailVerification() {
   const params = useParams();
-  console.log("id", params.id);
   const [isLoading, setLoading] = useState(true);
   const [isError, setError] = useState(false);
 
@@ -45,7 +44,9 @@ export default function EmailVerification() {
   return (
     <div className="flex w-full h-dvh justify-center items-center">
       <MetaHead
-        title={isLoading ? "Verifying Email..." : isError ? "Verification Failed" : "Email Verified"}
+        title={
+          isLoading ? "Verifying Email..." : isError ? "Verification Failed" : "Email Verified"
+        }
         description="Verify your email address to access your MKK Agent account."
         noIndex={true}
       />

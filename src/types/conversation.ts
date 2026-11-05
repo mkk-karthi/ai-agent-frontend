@@ -1,10 +1,21 @@
+export interface AttachmentType {
+  id: string;
+  originalName: string;
+  storedName: string;
+  mimeType: string;
+  size: number;
+}
+
 export interface ChatMessageType {
   id: string;
   message: string;
   rawMessage: string;
   role: string;
   modelId: string;
+  isError?: boolean;
+  attachments?: AttachmentType[];
 }
+
 
 export interface ChatType {
   id: string;

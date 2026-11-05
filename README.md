@@ -24,9 +24,12 @@ A fast, modern AI chat web application built with **React 19**, **Vite**, and **
 ## ✨ Features at a Glance
 
 - ⚡ **Live Streaming Responses**: Watch AI replies appear word-by-word in real time (using Server-Sent Events).
+- 🕒 **Timezone & Locale-Aware Grounding**: Automatically transmits user timezone (`x-timezone`) and locale (`x-locale`) headers on all requests so AI answers, timestamps, and geographic news align with your local time.
 - 🔍 **Built-in Web Search**: When needed, the AI automatically searches the web to give you up-to-date answers with source links.
 - 🤖 **Easy Model Switching**: Switch between OpenAI (GPT-4o) and Google Gemini models with a single click.
-- ✏️ **Edit & Retry**: Edit any previous prompt or regenerate an answer anytime without losing your conversation history.
+- ✏️ **Edit & Retry**: Edit any previous prompt across the conversation timeline or regenerate an answer anytime without losing your conversation history.
+- ⏳ **Skeleton Loading & Input Resilience**: Smooth skeleton placeholders (`ChatSkeleton`) during conversation loading. The prompt input clears immediately on send and automatically reverts previous text and attachments if an error occurs.
+- ⚠️ **Error Highlighting & Quick Retry**: Failed assistant messages or interrupted streams are styled with an error card and an active retry button.
 - 🔗 **Flexible Chat Sharing**:
   - **Restricted (Default)**: Private to you.
   - **Public**: Anyone with the link can read the conversation.
@@ -36,6 +39,9 @@ A fast, modern AI chat web application built with **React 19**, **Vite**, and **
   - Or use standard email and password.
   - Google users can also create a password anytime in their settings.
 - 🛡️ **Invisible Bot Protection**: Google reCAPTCHA v3 protects login and signup pages in the background without annoying puzzles.
+- 📎 **Secure File Attachments & Previews**: Responsive max-width attachment pills with word ellipsis in prompt input, full-width image cards in chat history, interactive PDF/code viewer in `FilePreviewModal`, and authenticated Blob downloads.
+- ⬇️ **Dynamic Scroll-to-Bottom**: Floating scroll button intelligently positioned directly above the prompt input based on its dynamic height.
+- 🔄 **Centralized Fetch Service**: Unified HTTP client supporting JSON, text, and binary Blobs with automatic 401 token refresh and SSE streaming error handling.
 - 📱 **Clean & Responsive UI**: Looks great and works smoothly on mobile, tablet, and desktop screens with collapsible sidebar navigation.
 - 📊 **Admin Dashboard**: Manage AI providers, add API keys, and monitor user token consumption.
 
@@ -72,7 +78,7 @@ frontend/
 │   │   ├── auth/           # Login, Sign Up, and Password Reset forms
 │   │   ├── common/         # Shared helpers (MetaHead for page titles & SEO)
 │   │   ├── ui/             # Basic building blocks (Buttons, Modals, Inputs, Tables)
-│   │   └── user/           # Chat UI (ChatHeader, Message list, Share modal, Settings)
+│   │   └── user/           # Chat UI (ChatHeader, FileAttachment, FilePreviewModal, Message list, Share, Settings)
 │   ├── context/            # Context providers (Active model & draft prompt state)
 │   ├── hooks/              # Custom React hooks (useRecaptcha, useDebounce, useInfinityScroll)
 │   ├── layouts/            # Page layouts (UserLayout with sidebar, AdminLayout)
@@ -179,6 +185,14 @@ This compiles your TypeScript and creates an optimized production bundle in the 
 ### 5. Bot Protection (reCAPTCHA v3)
 - Google reCAPTCHA v3 runs invisibly only on login and registration pages.
 - As soon as you log in, the reCAPTCHA badge is removed automatically so it does not clutter your chat screen.
+
+### 6. File Attachments & Preview
+- Drag and drop or attach documents (PDF, DOCX, TXT, CSV) and images into the chat input with automatic filename deduplication.
+- Input attachments render as compact, responsive pills with maximum fixed width, word ellipsis, and hover tooltips (`title` tags).
+- Chat message attachments render dedicated full-width image preview cards with truncated filenames.
+- Click any attached file pill to open the **FilePreviewModal** to inspect content, code, or images before and after sending.
+- Protected files are fetched with user authentication headers and rendered via memory Blob URLs (`URL.createObjectURL`), keeping access tokens secure while supporting image viewing, embedded PDF reading, and direct file downloads.
+
 
 ---
 

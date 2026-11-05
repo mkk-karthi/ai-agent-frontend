@@ -1,15 +1,17 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { parseMarkdown } from "@tanstack/markdown/parser";
 import { streamingMarkdownExtension } from "@tanstack/markdown/extensions/streaming";
 import { fetchService } from "../../../lib/fetchService";
 import { useInfiniteScroll } from "../../../hooks/useInfinityScroll";
 import { MarkdownComponent } from "../../ui/MarkdownComponent";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader } from "lucide-react";
 import ChatMessage from "./ChatMessage";
+import ChatSkeleton from "./ChatSkeleton";
 import type { ChatMessageType } from "../../../types/conversation";
 import { useNavigate } from "react-router-dom";
 import { queryClient } from "../../../lib/queryClient";
+import { ConversationContext } from "../../../context/conversationContext";
 
 interface ChatMessagesType {
   data: Array<ChatMessageType>;
@@ -33,7 +35,11 @@ export default function ChatMessages({
   isLoading?: boolean;
   isShared?: boolean;
 }) {
-  const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const {
+    showScrollBottom: contextShowScrollBottom,
+    setShowScrollBottom,
+    setScrollToBottom,
+  } = useContext(ConversationContext);
   const navigate = useNavigate();
 
   const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
@@ -53,6 +59,7 @@ export default function ChatMessages({
               ...v,
               rawMessage: v.message,
               message: parseMarkdown(v.message),
+              attachments: v.attachments || [],
             })),
           };
         } else return { data: [], nextToken: "" };
@@ -115,16 +122,23 @@ export default function ChatMessages({
     }
   }, [isLoading, isShared, chatId, setStreamedText, streamedText]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
-  };
+  }, []);
 
-  // 3. Monitor scroll position to show/hide the floating button
+  useEffect(() => {
+    setScrollToBottom(scrollToBottom);
+    return () => {
+      setShowScrollBottom(false);
+    };
+  }, [scrollToBottom, setScrollToBottom, setShowScrollBottom]);
+
+  // Monitor scroll position to show/hide the floating button
   const handleScroll = useCallback(() => {
     if (!chatContainerRef.current) return;
 
@@ -133,7 +147,7 @@ export default function ChatMessages({
     // Show button if the user scrolls up more than 300px from the bottom
     const isScrolledUp = scrollHeight - scrollTop - clientHeight > 300;
     setShowScrollBottom(isScrolledUp);
-  }, [chatContainerRef]);
+  }, [chatContainerRef, setShowScrollBottom]);
 
   return (
     <>
@@ -142,18 +156,20 @@ export default function ChatMessages({
         className="relative h-[calc(100dvh-2rem)] overflow-y-scroll px-4 md:px-8 pb-12"
         onScroll={handleScroll}
       >
-        <div
-          className={`sticky top-[85vh] md:top-[75vh] w-full flex justify-center z-15 ${showScrollBottom ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
-        >
-          <ChevronDown
-            size={32}
-            className="p-1 rounded-full bg-gray-700/50 cursor-pointer border border-gray-200/50 backdrop-blur-xs"
-            onClick={scrollToBottom}
-          />
-        </div>
+        {isShared && (
+          <div
+            className={`sticky top-[85vh] md:top-[75vh] w-full flex justify-center z-15 ${contextShowScrollBottom ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
+          >
+            <ChevronDown
+              size={32}
+              className="p-1 rounded-full bg-gray-700/50 cursor-pointer border border-gray-200/50 backdrop-blur-xs"
+              onClick={scrollToBottom}
+            />
+          </div>
+        )}
 
         {status === "pending" ? (
-          <div className="flex justify-center items-center size-full text-2xl">Loading...</div>
+          <ChatSkeleton />
         ) : status === "error" ? (
           <div className="flex justify-center items-center size-full text-2xl">
             Error: {error.message}
@@ -161,7 +177,7 @@ export default function ChatMessages({
         ) : (
           <div className="flex my-6 flex-col-reverse gap-3">
             <div ref={containerBottomRef} className="h-2 w-full"></div>
-            {isLoading && (
+            {isLoading && !streamedText && (
               <div className="flex items-center gap-2 w-fit mx-10 my-4 p-4 bg-gray-200 dark:bg-gray-800/80 rounded-4xl min-h-7.5">
                 <span className="flex items-center gap-1.5">
                   {[0, 150, 300].map((delay) => (
@@ -195,19 +211,26 @@ export default function ChatMessages({
                       <ChatMessage
                         key={item.id}
                         item={item}
-                        isEdit={
-                          !isShared && item.role === "USER" && i === 0 && j === 1 && !isLoading
-                        }
+                        isEdit={!isShared && !isLoading && item.role === "USER"}
                         isRetry={!isShared && i === 0 && j === 0 && !isLoading}
                         regenerateContent={regenerateContent ?? (() => {})}
+                        isShared={isShared}
                       />
                     ),
                 )}
               </React.Fragment>
             ))}
-            <div ref={loaderRef} className="text-center w-full py-4 min-h-10">
-              {isFetchingNextPage && <p>Loading...</p>}
-              {error && <p>Error</p>}
+            <div
+              ref={loaderRef}
+              className="flex justify-center items-center w-full py-4 min-h-10 text-gray-500"
+            >
+              {isFetchingNextPage && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Loader size={16} className="animate-spin text-gray-400" />
+                  <span>Loading older messages...</span>
+                </div>
+              )}
+              {error && <p className="text-sm text-red-500">Failed to load older messages</p>}
             </div>
           </div>
         )}

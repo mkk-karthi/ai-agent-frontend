@@ -66,7 +66,6 @@ export function Usage() {
         callbacks: {
           label: function (context: TooltipItem<"bar">) {
             const label = context.dataset.label || "";
-            console.log("context.parsed", context.parsed);
             const yValue = formatNumber(context.parsed.y ?? 0);
 
             return `${label}: ${yValue}`;

@@ -17,6 +17,27 @@ All AI agents working within this repository **MUST** follow these core guidelin
 
 ---
 
+## ❓ ALWAYS ASK CLARIFICATION ON DOUBT (NO ASSUMPTIONS)
+
+> [!IMPORTANT]
+> **If in doubt, ALWAYS ask the user directly — NEVER make assumptions or unilateral decisions.**
+> 
+> - If requirements, parameters, or design choices are ambiguous, do not guess or decide by yourself.
+> - Pause and prompt the user with clear questions or options before proceeding.
+
+---
+
+## 🚫 NO GIT WRITE ACTIONS (DO NOT RUN GIT ADD, COMMIT, PUSH)
+
+> [!CAUTION]
+> **NEVER stage, commit, or push git changes without explicit user permission.**
+> 
+> - Under **no circumstances** should agent tools run `git add`, `git commit`, `git push`, `git checkout`, `git reset`, `git rebase`, `git merge`, or any other mutating git command unless the user explicitly requests it.
+> - **Read-only git commands only**: Commands such as `git status`, `git diff`, and `git log` are permitted for reviewing and inspecting changes.
+> - Always leave staging (`git add`), committing, and pushing entirely to the user.
+
+---
+
 ## 📁 Repository Structure
 
 ```text
@@ -29,11 +50,11 @@ frontend/
 │   │   ├── auth/                  # LoginForm, RegisterForm, ResetPassword forms
 │   │   ├── common/                # MetaHead.tsx for dynamic titles & OpenGraph tags
 │   │   ├── ui/                    # DataTable, Modal, Button, Input primitives
-│   │   └── user/                  # ChatHeader, ChatMessages, ShareConversation, Settings
+│   │   └── user/                  # ChatHeader, ChatMessages, FileAttachment, FilePreviewModal, ShareConversation, Settings
 │   ├── context/                   # ConversationContext & UserContext
 │   ├── hooks/                     # useRecaptcha, useDebounce, useInfinityScroll
 │   ├── layouts/                   # UserLayout, AdminLayout, Footer
-│   ├── lib/                       # fetchService.ts (SSE streaming), queryClient.ts
+│   ├── lib/                       # fetchService.ts (SSE streaming & 401 refresh), queryClient.ts
 │   ├── page/
 │   │   ├── admin/                 # Dashboard, Providers, User
 │   │   ├── auth/                  # Login, SignUp, GoogleCallback, ResetPassword
@@ -45,7 +66,7 @@ frontend/
 │   ├── App.tsx                    # Root provider shell
 │   └── main.tsx                   # Client mount
 ├── .agents/
-│   ├── rules/no-env.md            # Standalone .env protection rule
+│   ├── rules/                     # no-env.md, ask-clarification.md
 │   └── skills/ai-agent-frontend/  # Frontend architecture skill
 ├── .env.example                   # Canonical environment template
 ├── package.json                   # Dependencies & build scripts
@@ -60,20 +81,39 @@ frontend/
    - When navigating to `/c/:id`, first validate and retrieve the conversation object.
    - If retrieval fails, display an error state with a "New Conversation" button and **hide the prompt input**.
    - If retrieval succeeds, proceed to fetch messages and render the chat timeline.
-2. **Dynamic Header SEO (`<MetaHead>`)**:
+2. **File Attachments & Preview (`FileAttachment.tsx`, `FilePreviewModal.tsx`)**:
+   - Files are validated (documents & images) with filename deduplication.
+   - Attachment pills above `PromptInput` use responsive max-width (`max-w-44 sm:max-w-52 w-fit`), word ellipsis (`truncate min-w-0`), and `title` hover tags.
+   - Image cards in chat history use full-width images (`w-full h-full object-cover`) and fixed widths (`w-48 sm:w-52`) with native title tooltips.
+   - Clicking an attachment pill triggers `FilePreviewModal` for text/code syntax viewing, image previews, or document inspection.
+   - File uploads are streamed via `FormData` in `fetchService.ts` with centralized 401 token refresh handling.
+3. **Dynamic Header SEO (`<MetaHead>`)**:
    - Always use `<MetaHead>` (`src/components/common/MetaHead.tsx`) across all user, admin, and shared views for dynamic document titles and OpenGraph tags.
-3. **Conversation Sharing UI (`src/components/user/chats/ShareConversation.tsx`)**:
+4. **Conversation Sharing UI (`src/components/user/chats/ShareConversation.tsx`)**:
    - Default share type is `RESTRICTED`.
    - When `RESTRICTED` is selected, the share link is hidden.
    - When `SPECIFIC_USER` is selected, validate email tags. Automatically validate and merge uncommitted text in the email input upon form submission.
-4. **Security & Anti-Bot Protection**:
+5. **Security & Anti-Bot Protection**:
    - Google reCAPTCHA v3 (`useRecaptcha.ts` hook) is active **ONLY on unauthorized auth pages** (`Login`, `SignUp`, `ResetPassword`).
    - Upon component unmount or navigation to authorized layouts (`Layout.tsx`, `AdminLayout.tsx`), hide/clean up `.grecaptcha-badge` so it never covers chat or admin screens.
    - Google OAuth2 callback (`GoogleCallback.tsx`) prevents duplicate toast notifications using `processedRef` and a unique `toastId: "google-login-success"`.
-5. **State Management**:
+6. **State Management**:
    - TanStack React Query v5 for server data (`['conversations']`, `['messages', conversationId]`).
    - Zustand for client stores (`UserStore.ts`, `AppStore.ts`).
-   - `ConversationContext` for active model selection and draft prompts.
+   - `ConversationContext` for active model selection, draft prompts, and scroll-to-bottom coordinator (`showScrollBottom`, `scrollToBottom`).
+7. **Dynamic Scroll-to-Bottom & Timeline Actions**:
+   - Floating scroll-to-bottom button is in `PromptInput.tsx` anchored dynamically at `bottom-full mb-3 left-1/2 -translate-x-1/2` relative to dynamic input height.
+   - All user message turns in the timeline are editable (not only the last message).
+8. **Tailwind CSS Unit Conventions**:
+   - **NEVER use arbitrary pixel classes like `xx-[100px]` or `[...px]`** (`h-[100px]`, `min-h-[300px]`, `max-w-[150px]`, `text-[10px]`).
+   - **Always convert pixel values using `value = px / 4`**:
+     - `h-[100px]` => `h-25` (100 / 4)
+     - `min-h-[300px]` => `min-h-75` (300 / 4)
+     - `max-w-[150px]` => `max-w-37.5` (150 / 4)
+     - `max-w-[200px]` => `max-w-50` (200 / 4)
+   - For font sizes, use standard utilities (`text-xs`, `text-sm`, `text-base`) rather than `text-[...px]`.
+8. **Strict Repository Isolation**:
+   - Frontend and backend are separate, independent repositories. NEVER create common/root README files or agent files outside `frontend/`.
 
 ---
 
