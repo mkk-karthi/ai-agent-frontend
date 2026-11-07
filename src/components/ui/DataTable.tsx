@@ -81,17 +81,14 @@ export default function DataTable<TData>({ columns, apiUrl, queryKey }: DataTabl
       {/* Tool Bar */}
       <div className="mb-4 flex justify-between">
         {/* Search */}
-        <div className="relative w-40 sm:w-60 max-w-sm">
-          <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white"
-          />
+        <div className="relative w-40 sm:w-60 max-w-sm flex items-center">
+          <Search className="pointer-events-none absolute left-3.5 size-4 text-gray-400" />
           <input
             type="text"
             value={globalFilter}
             onChange={(event) => setGlobalFilter(event.target.value)}
             placeholder="Search..."
-            className="w-full rounded-md py-2 pl-10 pr-3 text-sm transition bg-white dark:bg-white/5 outline focus:outline-2 outline-gray-300 dark:outline-white/10 focus:outline-gray-400"
+            className="w-full rounded-xl border border-gray-200 dark:border-white/10 pl-10 pr-4 py-2.5 text-sm bg-gray-50 dark:bg-gray-900/60 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
           />
         </div>
 
@@ -102,7 +99,7 @@ export default function DataTable<TData>({ columns, apiUrl, queryKey }: DataTabl
             <select
               value={table.getState().pagination.pageSize}
               onChange={(event) => table.setPageSize(Number(event.target.value))}
-              className="appearance-none rounded-md bg-white dark:bg-white/5 py-2 pl-3 pr-8 text-sm outline focus:outline-2 outline-gray-300 dark:outline-white/10 focus:outline-gray-400"
+              className="appearance-none rounded-xl border border-gray-200 dark:border-white/10 pr-10 pl-4 py-2.5 text-sm bg-gray-50 dark:bg-gray-900/60 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
             >
               {pageLimitOptions.map((limit) => (
                 <option key={limit} value={limit}>
@@ -119,18 +116,18 @@ export default function DataTable<TData>({ columns, apiUrl, queryKey }: DataTabl
       </div>
 
       {/* Responsive Table Wrapper */}
-      <div className="overflow-x-auto border border-gray-200 dark:border-white/10 rounded-lg">
+      <div className="overflow-x-auto border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/40 rounded-xl">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10 text-sm text-left">
-          <thead className="bg-gray-50 dark:bg-gray-800/75 uppercase text-xs font-semibold tracking-wider">
+          <thead className="bg-indigo-50/70 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 uppercase text-xs font-semibold tracking-wider">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
-                    className="px-6 py-3 cursor-pointer select-none text-gray-900 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    className="px-6 py-3.5 cursor-pointer select-none transition-colors"
                   >
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1.5">
                       <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
                       <span>
                         {{ asc: <ChevronUp size={12} />, desc: <ChevronDown size={12} /> }[
@@ -148,12 +145,12 @@ export default function DataTable<TData>({ columns, apiUrl, queryKey }: DataTabl
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors"
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400 font-medium"
+                    className="px-6 py-3.5 whitespace-nowrap text-gray-700 dark:text-gray-300"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -165,26 +162,26 @@ export default function DataTable<TData>({ columns, apiUrl, queryKey }: DataTabl
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-between mt-4 text-sm">
-        <div className="flex space-x-2">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 text-sm">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="px-3 py-1.5 text-gray-700 dark:text-white border border-gray-300 dark:border-white/9 rounded-md bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/80 px-3.5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 shadow-2xs hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all cursor-pointer"
           >
             Previous
           </button>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="px-3 py-1.5 text-gray-700 dark:text-white border border-gray-300 dark:border-white/9 rounded-md bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/80 px-3.5 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 shadow-2xs hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition-all cursor-pointer"
           >
             Next
           </button>
         </div>
-        <span className="text-gray-700 dark:text-white">
-          Page <strong>{table.getState().pagination.pageIndex + 1}</strong> of{" "}
-          <strong>{table.getPageCount()}</strong>
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          Page <strong className="text-gray-900 dark:text-white font-semibold">{table.getState().pagination.pageIndex + 1}</strong> of{" "}
+          <strong className="text-gray-900 dark:text-white font-semibold">{table.getPageCount() > 0 ? table.getPageCount() : 1}</strong>
         </span>
       </div>
     </div>

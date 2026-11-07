@@ -96,7 +96,7 @@ export default function SearchModel(): React.ReactElement {
                         to={`/${item.id}`}
                         onClick={() => setSearchModelOpen(false)}
                         className={({ isActive }) =>
-                          `flex justify-start items-center rounded-lg hover:bg-gray-900/5 dark:hover:bg-white/5 text-gray-950! dark:text-white! cursor-pointer px-4 py-2 ${isActive && "bg-gray-900/5 dark:bg-white/5"}`
+                          `flex justify-start items-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-950! dark:text-white! cursor-pointer px-4 py-2 ${isActive && "bg-gray-100 dark:bg-white/5"}`
                         }
                       >
                         <span className={`whitespace-nowrap overflow-hidden text-ellipsis`}>

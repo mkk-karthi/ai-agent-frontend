@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useAppConfig } from "../../hooks/useAppConfig";
 
 export interface MetaHeadProps {
   title?: string;
@@ -10,20 +11,22 @@ export interface MetaHeadProps {
   noIndex?: boolean;
 }
 
-const DEFAULT_SITE_NAME = "MKK Agent";
 const DEFAULT_DESCRIPTION =
-  "MKK Agent - An advanced AI conversation platform with multi-provider model support.";
+  "An advanced AI conversation platform with multi-provider model support.";
 
 export default function MetaHead({
   title,
-  description = DEFAULT_DESCRIPTION,
+  description,
   keywords,
   ogType = "website",
   ogImage,
   canonicalUrl,
   noIndex = false,
 }: MetaHeadProps) {
-  const fullTitle = title ? `${title} | ${DEFAULT_SITE_NAME}` : DEFAULT_SITE_NAME;
+  const { config } = useAppConfig();
+  const siteName = config.appName || "MKK Agent";
+  const activeDesc = description || `${siteName} - ${DEFAULT_DESCRIPTION}`;
+  const fullTitle = title ? `${title} | ${siteName}` : siteName;
   const currentUrl =
     canonicalUrl || (typeof window !== "undefined" ? window.location.href : undefined);
 
@@ -46,22 +49,22 @@ export default function MetaHead({
       el.content = content;
     };
 
-    setMetaTag("name", "description", description);
+    setMetaTag("name", "description", activeDesc);
     if (keywords) setMetaTag("name", "keywords", keywords);
     setMetaTag("name", "robots", noIndex ? "noindex, nofollow" : "index, follow");
 
     // OpenGraph
     setMetaTag("property", "og:title", fullTitle);
-    setMetaTag("property", "og:description", description);
+    setMetaTag("property", "og:description", activeDesc);
     setMetaTag("property", "og:type", ogType);
-    setMetaTag("property", "og:site_name", DEFAULT_SITE_NAME);
+    setMetaTag("property", "og:site_name", siteName);
     if (currentUrl) setMetaTag("property", "og:url", currentUrl);
     if (ogImage) setMetaTag("property", "og:image", ogImage);
 
     // Twitter
     setMetaTag("name", "twitter:card", "summary_large_image");
     setMetaTag("name", "twitter:title", fullTitle);
-    setMetaTag("name", "twitter:description", description);
+    setMetaTag("name", "twitter:description", activeDesc);
     if (ogImage) setMetaTag("name", "twitter:image", ogImage);
 
     // Canonical link
@@ -74,23 +77,23 @@ export default function MetaHead({
       }
       link.href = currentUrl;
     }
-  }, [fullTitle, description, keywords, ogType, ogImage, currentUrl, noIndex]);
+  }, [fullTitle, activeDesc, keywords, ogType, ogImage, currentUrl, noIndex, siteName]);
 
   return (
     <>
       <title>{fullTitle}</title>
-      <meta name="description" content={description} />
+      <meta name="description" content={activeDesc} />
       {keywords && <meta name="keywords" content={keywords} />}
       <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow"} />
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
+      <meta property="og:description" content={activeDesc} />
       <meta property="og:type" content={ogType} />
-      <meta property="og:site_name" content={DEFAULT_SITE_NAME} />
+      <meta property="og:site_name" content={siteName} />
       {currentUrl && <meta property="og:url" content={currentUrl} />}
       {ogImage && <meta property="og:image" content={ogImage} />}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
+      <meta name="twitter:description" content={activeDesc} />
       {ogImage && <meta name="twitter:image" content={ogImage} />}
       {currentUrl && <link rel="canonical" href={currentUrl} />}
     </>

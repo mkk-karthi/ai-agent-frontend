@@ -46,19 +46,19 @@ frontend/
 ├── src/
 │   ├── assets/                    # Logos & SVG assets
 │   ├── components/
-│   │   ├── admin/                 # Admin panels (ProviderForm, ModelUsage, User tables)
+│   │   ├── admin/                 # Admin panels (ProviderForm, ModelUsage, User tables, Tools management)
 │   │   ├── auth/                  # LoginForm, RegisterForm, ResetPassword forms
 │   │   ├── common/                # MetaHead.tsx for dynamic titles & OpenGraph tags
 │   │   ├── ui/                    # DataTable, Modal, Button, Input primitives
-│   │   └── user/                  # ChatHeader, ChatMessages, FileAttachment, FilePreviewModal, ShareConversation, Settings
+│   │   └── user/                  # Chat components, AgentExecutionDialog, UserAgentCard, UserToolCard
 │   ├── context/                   # ConversationContext & UserContext
-│   ├── hooks/                     # useRecaptcha, useDebounce, useInfinityScroll
+│   ├── hooks/                     # useAppConfig, useRecaptcha, useDebounce, useInfinityScroll
 │   ├── layouts/                   # UserLayout, AdminLayout, Footer
 │   ├── lib/                       # fetchService.ts (SSE streaming & 401 refresh), queryClient.ts
 │   ├── page/
-│   │   ├── admin/                 # Dashboard, Providers, User
+│   │   ├── admin/                 # Dashboard, Providers, Tools, User
 │   │   ├── auth/                  # Login, SignUp, GoogleCallback, ResetPassword
-│   │   └── user/                  # Conversation.tsx, SharedConversation.tsx, Privacy
+│   │   └── user/                  # Conversation.tsx, SharedConversation.tsx, Tools.tsx, Privacy
 │   ├── routes/                    # AppRoutes.tsx
 │   ├── schemas/                   # Zod validation schemas
 │   ├── stores/                    # Zustand AppStore & UserStore
@@ -112,8 +112,19 @@ frontend/
      - `max-w-[150px]` => `max-w-37.5` (150 / 4)
      - `max-w-[200px]` => `max-w-50` (200 / 4)
    - For font sizes, use standard utilities (`text-xs`, `text-sm`, `text-base`) rather than `text-[...px]`.
-8. **Strict Repository Isolation**:
-   - Frontend and backend are separate, independent repositories. NEVER create common/root README files or agent files outside `frontend/`.
+10. **Strict Repository Isolation**:
+    - Frontend and backend are separate, independent repositories. NEVER create common/root README files or agent files outside `frontend/`.
+11. **Dynamic Configuration Hydration (`useAppConfig`)**:
+    - Application limits (`maxFileSize`, `maxFiles`, `allowedExtensions`, `allowedMimeTypes`) and agent dynamic field definitions (`maxDynamicFields = 5`, `fieldTypeList`) are dynamically retrieved from backend `GET /config` via `useAppConfig.ts` with React Query. Do NOT hardcode or duplicate these settings in a separate frontend config file.
+12. **AI Agent Tools & Dynamic Workflows**:
+    - Tools and agents are accessible via `/tools` and configured via `/admin/tools`.
+    - Single indigo color theme for all buttons, highlights, badges, and toggle switches.
+    - Page layout: Top search card with centered icon; ToolCard encloses child AgentCards.
+    - Agent cards clamp titles to 2 lines and descriptions to 3 lines with native tooltips; execution dialog displays full text.
+    - `GET /tool` returns lightweight metadata; dynamic fields (minimum 1, maximum 5 allowed) and prompts load on-demand via `GET /agent/:id`. Duplicate field keys are validated and prevented.
+    - Options textarea in `DynamicFieldBuilder` allows Shift+Enter for newlines (1 empty line allowed, auto-trimmed on submit). Agent thumbnail removal is supported in `AgentFormModal`.
+    - Static asset images use `/uploads/agent` proxied via Vite and resolved through `getStaticAssetUrl(path)`.
+    - Executing an agent submits dynamic inputs, redirects immediately to `/:conversationId`, and streams the response with conversational follow-up support. Agent system prompts are isolated on the server and never handled by the frontend.
 
 ---
 

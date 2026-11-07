@@ -52,9 +52,9 @@ export default function EmailVerification() {
       />
       <div className="flex flex-col gap-3 justify-center items-center bg-gray-800 rounded border border-gary-700 shadow-2xl shadow-gray-800 p-4 h-1/2 w-10/12 lg:w-1/3">
         {isLoading ? (
-          <Loader2 size={54} className="text-blue-500 animate-spin" />
+          <Loader2 size={54} className="text-indigo-500 animate-spin" />
         ) : (
-          <BadgeCheck size={54} className="text-blue-500" />
+          <BadgeCheck size={54} className="text-indigo-500" />
         )}
         <p className="text-2xl font-bold">{isLoading ? "Loading..." : "Verified"}</p>
         {!isLoading && (

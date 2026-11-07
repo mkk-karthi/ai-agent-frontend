@@ -7,7 +7,7 @@ import {
 import type { apiResponse } from "../../../../types/type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { fetchService } from "../../../../lib/fetchService";
 import { toast } from "react-toastify";
@@ -18,8 +18,8 @@ interface ChangePasswordFormProps {
 }
 
 export default function ChangePasswordForm({ isCreatePassword = false }: ChangePasswordFormProps) {
-  const [showOldPassword, setShowOldPasword] = useState(false);
-  const [showPassword, setShowPasword] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showConformPassword, setShowConformPassword] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const { user, setUser } = useUserStore();
@@ -58,7 +58,8 @@ export default function ChangePasswordForm({ isCreatePassword = false }: ChangeP
           setUser({ ...user, hasPassword: true });
         }
         toast.success(
-          data.message || (isCreatePassword ? "Password created successfully" : "Password changed successfully"),
+          data.message ||
+            (isCreatePassword ? "Password created successfully" : "Password changed successfully"),
         );
       } else toast.error(data.message);
     },
@@ -69,7 +70,10 @@ export default function ChangePasswordForm({ isCreatePassword = false }: ChangeP
   });
 
   return (
-    <form onSubmit={handleSubmit((v) => !isLoading && mutation.mutate(v as ChangePasswordType))} className="space-y-4 p-2 mt-2">
+    <form
+      onSubmit={handleSubmit((v) => !isLoading && mutation.mutate(v as ChangePasswordType))}
+      className="space-y-4 p-2 mt-2"
+    >
       {!isCreatePassword && (
         <div className="border-b border-gray-300 dark:border-white/9 py-2">
           <div className="flex items-center">
@@ -86,8 +90,11 @@ export default function ChangePasswordForm({ isCreatePassword = false }: ChangeP
                 placeholder="Enter your password"
                 className={`w-full px-3 py-2 text-sm bg-white dark:bg-white/5 focus:outline-2 focus:outline-gray-400 rounded-l-md`}
               />
-              <div className="px-2 cursor-pointer" onClick={() => setShowOldPasword((val) => !val)}>
-                {showOldPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+              <div
+                className="px-2 cursor-pointer"
+                onClick={() => setShowOldPassword((val) => !val)}
+              >
+                {showOldPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
               </div>
             </div>
           </div>
@@ -112,8 +119,8 @@ export default function ChangePasswordForm({ isCreatePassword = false }: ChangeP
               placeholder="Enter password"
               className={`w-full px-3 py-2 text-sm bg-white dark:bg-white/5 focus:outline-2 focus:outline-gray-400 rounded-l-md`}
             />
-            <div className="px-2 cursor-pointer" onClick={() => setShowPasword((val) => !val)}>
-              {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+            <div className="px-2 cursor-pointer" onClick={() => setShowPassword((val) => !val)}>
+              {showPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
             </div>
           </div>
         </div>
@@ -141,7 +148,7 @@ export default function ChangePasswordForm({ isCreatePassword = false }: ChangeP
               className="px-2 cursor-pointer"
               onClick={() => setShowConformPassword((val) => !val)}
             >
-              {showConformPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+              {showConformPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
             </div>
           </div>
         </div>

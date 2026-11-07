@@ -61,7 +61,7 @@ export default function GoogleCallback(): React.ReactElement {
     };
 
     completeAuth();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -72,7 +72,7 @@ export default function GoogleCallback(): React.ReactElement {
         noIndex={true}
       />
       {/* Spinner */}
-      <div className="w-12 h-12 rounded-full border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 animate-spin" />
+      <div className="w-12 h-12 rounded-full border-4 border-indigo-200 dark:border-indigo-900 border-t-indigo-600 dark:border-t-indigo-400 animate-spin" />
       <p className="text-gray-700 dark:text-white/80 text-base font-medium">
         Completing Google sign-in…
       </p>

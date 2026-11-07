@@ -1,5 +1,12 @@
 import { Link, NavLink } from "react-router-dom";
-import { ChevronDown, Search, SquareChevronLeft, SquareChevronRight, SquarePen } from "lucide-react";
+import {
+  ChevronDown,
+  Search,
+  SquareChevronLeft,
+  SquareChevronRight,
+  SquarePen,
+  Wrench,
+} from "lucide-react";
 import Logo from "../../assets/logo.svg";
 import SettingsMenu from "../../components/user/settings/SettingsMenu";
 import React, { Fragment, useContext, useRef, useState } from "react";
@@ -71,10 +78,10 @@ export default function NavBar(): React.ReactElement {
         onMouseDown={() => setNavBarOpen(false)}
       >
         <div
-          className={`bg-gray-100 dark:bg-gray-900 h-auto min-h-dvh border-r border-gray-800/20 dark:border-white/10 p-2 z-15 transition-all duration-300 ${isNavOpen ? "fixed md:relative w-72 lg:w-[20dvw]" : "min-w-0 -translate-x-full md:translate-x-0 w-12"}`}
+          className={`bg-gray-50 dark:bg-gray-900 h-dvh max-h-dvh flex flex-col justify-between border-r border-gray-200 dark:border-white/10 p-2 z-15 transition-all duration-300 ${isNavOpen ? "fixed md:relative w-72 md:w-[30dvw] lg:w-[20dvw]" : "min-w-0 -translate-x-full md:translate-x-0 w-12"}`}
           onMouseDown={(event) => event.stopPropagation()}
         >
-          <div className="group relative cursor-pointer h-10 mt-2">
+          <div className="group relative cursor-pointer h-10 mt-2 shrink-0">
             <Link
               to="/new"
               className={`absolute top-0 left-0 transition-opacity duration-300 ${isNavOpen ? "" : "opacity-100 group-hover:opacity-0"}`}
@@ -93,8 +100,8 @@ export default function NavBar(): React.ReactElement {
             </div>
           </div>
 
-          <nav className="mt-2 w-full overflow-hidden">
-            <ul>
+          <nav className="mt-2 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+            <ul className="shrink-0">
               <li className="my-1">
                 <NavLink
                   to="/new"
@@ -123,9 +130,23 @@ export default function NavBar(): React.ReactElement {
                   </span>
                 </div>
               </li>
+              <li className="my-1">
+                <NavLink
+                  to="/tools"
+                  onClick={() => ["xs", "sm"].includes(breakpoint) && setNavBarOpen(false)}
+                  className={({ isActive }) =>
+                    `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden ${isNavOpen ? "px-2 py-1" : "p-2 m-auto"} ${isActive && "bg-gray-900/5 dark:bg-white/5"}`
+                  }
+                >
+                  <Wrench className="size-4" />
+                  <span className={`transition-[width_margin] duration-300 ${isNavOpen && "ml-2"}`}>
+                    {isNavOpen && "Tools"}
+                  </span>
+                </NavLink>
+              </li>
             </ul>
 
-            <div ref={conversationListRef} className="h-[calc(100dvh-13rem)] overflow-y-auto">
+            <div ref={conversationListRef} className="flex-1 min-h-0 overflow-y-auto pr-0.5">
               {isNavOpen && (
                 <>
                   {/* Pinned Items */}
@@ -139,7 +160,7 @@ export default function NavBar(): React.ReactElement {
                         <>
                           <div
                             onClick={() => setIsPinnedOpen((v) => !v)}
-                            className={`flex items-center justify-between text-base text-gray-900/50 dark:text-white/50 font-semibold transition-[width_padding] duration-300 mt-2 cursor-pointer select-none hover:text-gray-900/80 dark:hover:text-white/80 ${isNavOpen && "px-2"}`}
+                            className={`flex items-center justify-between text-base text-gray-500 dark:text-white/50 font-semibold transition-[width_padding] duration-300 mt-2 cursor-pointer select-none hover:text-gray-800 dark:hover:text-white/80 ${isNavOpen && "px-2"}`}
                           >
                             <span>Pinned</span>
                             <ChevronDown
@@ -172,7 +193,7 @@ export default function NavBar(): React.ReactElement {
 
                   <div
                     onClick={() => setIsRecentOpen((v) => !v)}
-                    className={`flex items-center justify-between text-base text-gray-900/50 dark:text-white/50 font-semibold transition-[width_padding] duration-300 mt-2 cursor-pointer select-none hover:text-gray-900/80 dark:hover:text-white/80 ${isNavOpen && "px-2"}`}
+                    className={`flex items-center justify-between text-base text-gray-500 dark:text-white/50 font-semibold transition-[width_padding] duration-300 mt-2 cursor-pointer select-none hover:text-gray-800 dark:hover:text-white/80 ${isNavOpen && "px-2"}`}
                   >
                     <span>Recents</span>
                     <ChevronDown
@@ -217,7 +238,9 @@ export default function NavBar(): React.ReactElement {
             </div>
           </nav>
 
-          <SettingsMenu />
+          <div className="shrink-0 mt-auto pt-2">
+            <SettingsMenu />
+          </div>
         </div>
       </div>
 

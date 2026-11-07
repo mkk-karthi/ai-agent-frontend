@@ -43,12 +43,12 @@ export default function ChatItem({
         </NavLink>
 
         <ul
-          className={`absolute ${isMenuOpen ? "block" : "hidden"} left-full z-25 transition-all duration-300 min-w-56 bg-white dark:bg-gray-900 p-2 rounded-xl border border-gray-400 dark:border-gray-700 shadow-md shadow-gray-900/10 dark:shadow-gray-800/90`}
+          className={`absolute ${isMenuOpen ? "block" : "hidden"} left-full z-25 transition-all duration-300 min-w-56 bg-white dark:bg-gray-900 p-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md shadow-gray-900/10 dark:shadow-gray-800/90`}
         >
           <li
             key={item.id}
             onClick={() => {}}
-            className="flex items-center px-4 p-2 gap-2 transition-all hover:bg-gray-900/5 dark:hover:bg-gray-800/50 rounded cursor-pointer"
+            className="flex items-center px-4 p-2 gap-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-800/50 rounded cursor-pointer"
           >
             <Trash className="size-4" />
             <span className="ml-2">Delete</span>

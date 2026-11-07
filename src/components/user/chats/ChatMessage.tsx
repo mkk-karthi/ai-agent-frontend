@@ -1,5 +1,5 @@
 import { AlertCircle, Check, Copy, Pencil, RefreshCw } from "lucide-react";
-import { MarkdownComponent } from "../../ui/MarkdownComponent";
+import { MarkdownComponent } from "./MarkdownComponent";
 import { useCallback, useContext, useState } from "react";
 import type { ChatMessageType } from "../../../types/conversation";
 import { ConversationContext } from "../../../context/conversationContext";
@@ -56,7 +56,7 @@ export default function ChatMessage({
         </div>
       ) : (
         <div
-          className={`${isUser ? "w-fit max-w-3/4 ml-auto bg-gray-200 dark:bg-gray-800/80 rounded-4xl text-left" : "w-full"} px-4 py-2`}
+          className={`${isUser ? "w-fit max-w-3/4 ml-auto bg-gray-100 text-gray-900 dark:bg-gray-800/80 dark:text-white rounded-4xl text-left" : "w-full text-gray-900 dark:text-gray-100"} px-4 py-2`}
         >
           <MarkdownComponent source={item.message} />
         </div>

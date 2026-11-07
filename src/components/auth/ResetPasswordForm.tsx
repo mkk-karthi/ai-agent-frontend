@@ -7,7 +7,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Eye, EyeClosed, MoveLeft } from "lucide-react";
+import { Eye, EyeOff, MoveLeft } from "lucide-react";
 import type { FormProps } from "../../types/type";
 
 export default function ResetPasswordForm({
@@ -30,7 +30,7 @@ export default function ResetPasswordForm({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues,
   });
-  const [showPassword, setShowPasword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showConformPassword, setShowConformPassword] = useState(false);
   const [resendOtpCounter, setResendOtpCounter] = useState(0);
 
@@ -52,13 +52,6 @@ export default function ResetPasswordForm({
           Email
         </label>
 
-        {/* <input
-          {...register("email")}
-          readOnly
-          type="hidden"
-          placeholder="Enter your email address"
-          className={`w-full rounded-md px-3 py-2 text-sm bg-white dark:bg-white/5 outline focus:outline-2 ${errors.email ? "outline-red-500" : "outline-gray-300 dark:outline-white/10 focus:outline-gray-400"}`}
-        /> */}
         <div className="w-full rounded-md px-3 py-2 text-sm bg-white dark:bg-white/5 outline outline-gray-300 dark:outline-white/10">
           {getValues("email")}
         </div>
@@ -92,8 +85,8 @@ export default function ResetPasswordForm({
             placeholder="Enter password"
             className={`w-full px-3 py-2 text-sm bg-white dark:bg-white/5 focus:outline-2 focus:outline-gray-400 rounded-l-md`}
           />
-          <div className="px-2 cursor-pointer" onClick={() => setShowPasword((val) => !val)}>
-            {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+          <div className="px-2 cursor-pointer" onClick={() => setShowPassword((val) => !val)}>
+            {showPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
           </div>
         </div>
         <p className="mt-1 text-sm text-red-500 h-4">
@@ -118,7 +111,7 @@ export default function ResetPasswordForm({
             className="px-2 cursor-pointer"
             onClick={() => setShowConformPassword((val) => !val)}
           >
-            {showConformPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+            {showConformPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
           </div>
         </div>
         <p className="mt-1 text-sm text-red-500 h-4">

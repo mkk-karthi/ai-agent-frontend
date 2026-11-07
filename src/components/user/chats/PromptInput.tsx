@@ -11,6 +11,7 @@ import {
 import { ConversationContext } from "../../../context/conversationContext";
 import { toast } from "react-toastify";
 import type { AttachmentType } from "../../../types/conversation";
+import { useAppConfig } from "../../../hooks/useAppConfig";
 
 export interface PromptInputState {
   prompt: string;
@@ -38,37 +39,16 @@ interface PromptInputProps {
   }) => void;
 }
 
-// Read limits from env (defaults: 5MB, 1 file)
-const MAX_FILE_SIZE_MB = Number(import.meta.env.VITE_MAX_FILE_SIZE_MB) || 5;
-const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
-const MAX_FILES = Number(import.meta.env.VITE_MAX_FILES) || 1;
-
-const ALLOWED_EXTENSIONS = [
-  ".pdf",
-  ".doc",
-  ".docx",
-  ".txt",
-  ".md",
-  ".png",
-  ".jpg",
-  ".jpeg",
-  ".webp",
-  ".csv",
-  ".json",
-  ".xml",
-  ".html",
-  ".css",
-  ".js",
-  ".ts",
-  ".py",
-  ".sql",
-  ".sh",
-];
-
 export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput(
   { className, isLoading, sendMessage },
   ref,
 ): React.ReactElement {
+  const { config } = useAppConfig();
+  const maxFileSize = config.upload.maxFileSize;
+  const maxFileSizeMb = Math.round(maxFileSize / (1024 * 1024));
+  const maxFiles = config.upload.maxFiles;
+  const generalExtensions = Object.values(config.upload.allowedExtensions).flat();
+
   const { editData, setEditData, showScrollBottom, scrollToBottom } =
     useContext(ConversationContext);
 
@@ -150,8 +130,8 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
     const incoming = Array.from(fileList);
 
     // Enforce total max files
-    if (totalFilesCount + incoming.length > MAX_FILES) {
-      toast.error(`You can only upload up to ${MAX_FILES} file${MAX_FILES > 1 ? "s" : ""}`);
+    if (totalFilesCount + incoming.length > maxFiles) {
+      toast.error(`You can only upload up to ${maxFiles} file${maxFiles > 1 ? "s" : ""}`);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -172,16 +152,16 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
       }
 
       // Size validation calculated from env MB
-      if (file.size > MAX_FILE_SIZE) {
+      if (file.size > maxFileSize) {
         toast.error(
-          `"${file.name}" exceeds the ${MAX_FILE_SIZE_MB}MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB)`,
+          `"${file.name}" exceeds the ${maxFileSizeMb}MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB)`,
         );
         continue;
       }
 
       // Extension validation
       const ext = "." + file.name.split(".").pop()?.toLowerCase();
-      if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      if (!generalExtensions.includes(ext)) {
         toast.error(`File type "${ext}" is not supported`);
         continue;
       }
@@ -278,7 +258,7 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
           <button
             type="button"
             onClick={scrollToBottom}
-            className="p-1.5 rounded-full bg-gray-100/90 dark:bg-gray-800/90 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600/80 shadow-md backdrop-blur-sm cursor-pointer transition active:scale-95 flex items-center justify-center"
+            className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800/90 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600/80 shadow-md backdrop-blur-sm cursor-pointer transition active:scale-95 flex items-center justify-center"
             title="Scroll to bottom"
           >
             <ChevronDown size={20} />
@@ -288,14 +268,14 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className={`flex ${totalFilesCount > 0 || editId ? "flex-col items-stretch" : isSingleLine ? "flex-row items-center" : "flex-col items-end"} bg-gray-200 dark:bg-gray-800 rounded-3xl md:rounded-4xl px-4 md:px-6 py-3 md:py-4 gap-2 md:gap-3 w-full mx-auto ${className}`}
+        className={`flex ${totalFilesCount > 0 || editId ? "flex-col items-stretch" : isSingleLine ? "flex-row items-center" : "flex-col items-end"} bg-gray-100 dark:bg-gray-800 rounded-3xl md:rounded-4xl px-4 md:px-6 py-3 md:py-4 gap-2 md:gap-3 w-full mx-auto ${className}`}
       >
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept={ALLOWED_EXTENSIONS.join(",")}
-          multiple={MAX_FILES > 1}
+          accept={generalExtensions.join(",")}
+          multiple={maxFiles > 1}
           className="hidden"
         />
         {(totalFilesCount > 0 || editId) && (
@@ -306,7 +286,7 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
                 {existingAttachments.map((att) => (
                   <div
                     key={`existing-${att.id}`}
-                    className="flex items-center gap-1.5 max-w-44 sm:max-w-52 w-fit px-2.5 py-1.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 text-xs shadow-xs"
+                    className="flex items-center gap-1.5 max-w-44 sm:max-w-52 w-fit px-2.5 py-1.5 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 text-xs shadow-xs"
                   >
                     <Paperclip size={14} className="text-blue-500 shrink-0" />
                     <span
@@ -315,7 +295,7 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
                     >
                       {att.originalName}
                     </span>
-                    <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/60 px-1.5 py-0.5 rounded shrink-0">
+                    <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/60 px-1.5 py-0.5 rounded shrink-0">
                       {formatSize(att.size)}
                     </span>
                     <button
@@ -357,7 +337,7 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
                 ))}
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-medium">
+              <div className="flex items-center gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
                 <span>Editing message</span>
               </div>
             )}
@@ -378,10 +358,10 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
         <div className="flex items-center w-full gap-2">
           <button
             type="button"
-            disabled={isLoading || totalFilesCount >= MAX_FILES}
+            disabled={isLoading || totalFilesCount >= maxFiles}
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition cursor-pointer shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
-            title={`Attach files (max ${MAX_FILES} file${MAX_FILES > 1 ? "s" : ""}, up to ${MAX_FILE_SIZE_MB}MB each)`}
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition cursor-pointer shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+            title={`Attach files (max ${maxFiles} file${maxFiles > 1 ? "s" : ""}, up to ${maxFileSizeMb}MB each)`}
           >
             <Paperclip size={18} />
           </button>
@@ -394,7 +374,7 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
                 ? "Ask about the attached files or add instructions..."
                 : "Ask anything"
             }
-            className="text-base outline-none w-full resize-none bg-transparent placeholder:text-xl"
+            className="text-base outline-none w-full resize-none bg-transparent placeholder:text-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
             value={prompt}
             rows={1}
             onChange={(e) => {
@@ -407,7 +387,7 @@ export default forwardRef<PromptInputRef, PromptInputProps>(function PromptInput
           <button
             type="submit"
             disabled={isLoading || (!prompt.trim() && totalFilesCount === 0)}
-            className="flex border border-dashed border-gray-400 dark:border-gray-500 p-2 rounded-full cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-gray-700 transition shrink-0"
+            className="flex border border-gray-300 dark:border-gray-500 p-2 rounded-full cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-gray-700 transition shrink-0"
           >
             {isLoading ? (
               <Loader size={14} className="animate-[spin_2s_linear_infinite]" />

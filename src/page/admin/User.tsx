@@ -1,29 +1,53 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Users as UsersIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import DataTable from "../../components/ui/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
-import CreateUser from "../../components/admin/user/UserCreate";
+import { useMemo } from "react";
 import type { User } from "../../types/user";
-import StatusColumn from "../../components/admin/user/StatusColumn";
+import StatusColumn from "../../components/ui/StatusColumn";
 import MetaHead from "../../components/common/MetaHead";
 
-export default function User(): React.ReactElement {
-  const [isOpenCreateUser, openCreateUser] = useState(false);
-
+export default function UserPage(): React.ReactElement {
   const columns = useMemo<ColumnDef<User>[]>(
     () => [
       {
-        accessorKey: "firstName",
-        header: "First Name",
-      },
-      {
-        accessorKey: "lastName",
-        header: "Last Name",
-      },
-      {
         accessorKey: "email",
-        header: "Email",
+        header: "User",
+        cell: ({ row }) => {
+          const user = row.original;
+          const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
+          const initial = (user.firstName?.[0] || user.email?.[0] || "U").toUpperCase();
+
+          return (
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-semibold text-sm select-none">
+                {initial}
+              </div>
+              <div className="min-w-0">
+                <div className="font-semibold text-gray-900 dark:text-white truncate">
+                  {fullName}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {user.email}
+                </div>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Joined Date",
+        cell: ({ row }) => {
+          const rawDate = row.original.createdAt;
+          if (!rawDate) return <span className="text-gray-400">-</span>;
+          const formatted = new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          }).format(new Date(rawDate));
+          return <span className="text-gray-600 dark:text-gray-300">{formatted}</span>;
+        },
       },
       {
         accessorKey: "status",
@@ -50,38 +74,44 @@ export default function User(): React.ReactElement {
         description="Manage users, account statuses, and permissions in MKK Agent Admin."
         noIndex={true}
       />
-      <div className="rounded-lg px-6 py-8 dark:bg-gray-800/20 ring shadow-xl ring-gray-300 dark:ring-white/10 outline-1 outline-white/10">
-        <div className="flex items-center justify-between">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 text-base text-gray-500 dark:text-gray-400">
-              <Link to="/admin/dashboard" className="hover:text-gray-700 dark:hover:text-white">
-                Home
-              </Link>
-              <ChevronRight className="size-4" />
-              <Link to="/admin/user" className="hover:text-gray-700 dark:hover:text-white">
-                User
-              </Link>
+
+      <div className="space-y-6 pb-16">
+        {/* Top Separate Card: Page Title, Description & Breadcrumbs */}
+        <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/40 p-6 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <Link
+                  to="/admin/dashboard"
+                  className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                >
+                  Home
+                </Link>
+                <ChevronRight className="size-3.5" />
+                <span className="text-gray-900 dark:text-white font-medium">Users</span>
+              </div>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+                Users Management
+              </h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                View registered user accounts, manage active statuses, and audit membership
+                creation.
+              </p>
             </div>
-            <h2 className="text-2xl/7 font-bold text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight mt-1">
-              Users
-            </h2>
+
+            <div className="flex items-center gap-2">
+              <div className="inline-flex items-center gap-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 px-3.5 py-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/40">
+                <UsersIcon className="size-4 text-indigo-600 dark:text-indigo-400" />
+                <span>Account Directory</span>
+              </div>
+            </div>
           </div>
-          {/* <div className="flex mt-0 ml-4">
-            <button
-              type="button"
-              className="inline-flex items-center rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 cursor-pointer"
-              onClick={() => openCreateUser(true)}
-            >
-              <CirclePlus className="size-5" />
-              <span className="hidden sm:block ml-2"> Create</span>
-            </button>
-          </div> */}
         </div>
 
-        <div className="mt-4">
+        {/* User Table Card */}
+        <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/40 p-6 shadow-xs">
           <DataTable<User> columns={columns} apiUrl="/user" queryKey="users" />
         </div>
-        <CreateUser isModalOpen={isOpenCreateUser} onModalUpdate={openCreateUser} />
       </div>
     </>
   );

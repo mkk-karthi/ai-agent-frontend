@@ -123,7 +123,7 @@ export default function ConversationOptions({
     <>
       <ul
         ref={chatOptionMenuRef}
-        className={`absolute ${conversationOptionOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} z-25 transition-opacity duration-300 min-w-42 h-fit bg-white dark:bg-gray-800 rounded-xl border border-gray-400 dark:border-gray-900`}
+        className={`absolute ${conversationOptionOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} z-25 transition-opacity duration-300 min-w-42 h-fit bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-900 shadow-md`}
         style={{
           left: conversationOptionPosition ? conversationOptionPosition.left - 16 : 0,
           top: conversationOptionPosition ? conversationOptionPosition.top : 0,
@@ -131,28 +131,28 @@ export default function ConversationOptions({
       >
         <li
           onClick={handlePin}
-          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"
+          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-900/50 rounded cursor-pointer"
         >
           {conversation?.isPinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
           <span className="ml-2">{conversation?.isPinned ? "Un Pin" : "Pin"}</span>
         </li>
         <li
           onClick={handleRename}
-          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"
+          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-900/50 rounded cursor-pointer"
         >
           <Pencil className="size-4" />
           <span className="ml-2">Rename</span>
         </li>
         <li
           onClick={handleShare}
-          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"
+          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-900/50 rounded cursor-pointer"
         >
           <Share className="size-4" />
           <span className="ml-2">Share</span>
         </li>
         <li
           onClick={handleDelete}
-          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-900 dark:hover:bg-gray-900/50 rounded cursor-pointer"
+          className="flex items-center px-4 p-2 gap-x-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-900/50 rounded cursor-pointer"
         >
           <Trash className="size-4" />
           <span className="ml-2">Delete</span>

@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom";
-import { Bolt, House, SquareChevronLeft, SquareChevronRight, User } from "lucide-react";
+import { Bolt, House, SquareChevronLeft, SquareChevronRight, User, Wrench } from "lucide-react";
 import Logo from "../../assets/logo.svg";
 import type { MenuListType } from "../../types/type";
 import { useAppStore } from "../../stores/AppStore";
@@ -24,6 +24,11 @@ export default function NavBar() {
       link: "/admin/providers",
       name: "Providers",
     },
+    {
+      icon: <Wrench className="size-4" />,
+      link: "/admin/tools",
+      name: "Tools & Agents",
+    },
   ];
 
   return (
@@ -31,7 +36,7 @@ export default function NavBar() {
       className={`fixed md:relative z-20 transition-all duration-300 ${isNavOpen ? "inset-0 backdrop-blur-sm md:backdrop-blur-none" : "-left-full md:left-0"}`}
     >
       <div
-        className={`bg-gray-100 dark:bg-gray-900 h-auto min-h-dvh border-r border-gray-800/20 dark:border-white/10 p-2 z-15 transition-all duration-300 ${isNavOpen ? "fixed md:relative min-w-72" : "min-w-0 -translate-x-full md:translate-x-0"}`}
+        className={`bg-gray-50 dark:bg-gray-900 h-auto min-h-dvh border-r border-gray-200 dark:border-white/10 p-2 z-15 transition-all duration-300 ${isNavOpen ? "fixed md:relative min-w-72" : "min-w-0 -translate-x-full md:translate-x-0"}`}
       >
         <div className="group relative cursor-pointer h-10 mt-2">
           <Link
@@ -59,7 +64,7 @@ export default function NavBar() {
                 <NavLink
                   to={item.link}
                   className={({ isActive }) =>
-                    `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden p-2 ${isNavOpen ? "" : "m-auto"} ${isActive && "bg-gray-900/5 dark:bg-white/5"}`
+                    `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-200/50 dark:hover:bg-white/5 cursor-pointer whitespace-nowrap overflow-hidden p-2 ${isNavOpen ? "" : "m-auto"} ${isActive && "bg-gray-200/70 dark:bg-white/5"}`
                   }
                 >
                   {item.icon}

@@ -13,140 +13,169 @@ A fast, modern AI chat web application built with **React 19**, **Vite**, and **
 
 ## 📸 Screenshots
 
-### 💬 Chat Interface & Live Web Search
-![Chat Interface](docs/images/chat-interface.png)
+### 💬 User Experience
 
-### 📊 Admin Analytics Dashboard
+#### 1. Live Chat Conversation & File Processing
+![Conversation & File Processing](docs/images/chat-interface.png)
+
+#### 2. Clean New Chat Interface
+![New Chat Interface](docs/images/user-new-chat.png)
+
+#### 3. AI Tools & Agents Directory
+![AI Tools Directory](docs/images/user-tools.jpg)
+
+#### 4. Agent Execution with Dynamic Inputs
+![Agent Execution](docs/images/user-agent-dialog.jpg)
+
+### 📊 Admin Portal
+
+#### 1. Real-Time Analytics Dashboard
 ![Admin Dashboard](docs/images/dashboard.png)
+
+#### 2. Tools & Agents Management
+![Tools & Agents Management](docs/images/admin-tools.png)
+
+#### 3. Dynamic Agent Builder & System Prompt
+![Agent Configuration](docs/images/admin-agent-form.jpg)
+
+#### 4. AI Providers & Model Discovery
+![AI Providers & Models](docs/images/admin-providers.png)
+
+#### 5. User Directory & Access Control
+![Users Management](docs/images/admin-users.png)
+
+#### 2. Tools & Agents Management
+![Tools & Agents Management](docs/images/admin-tools.png)
+
+#### 3. Dynamic Agent Builder & System Prompt
+![Agent Configuration](docs/images/admin-agent-form.jpg)
+
+#### 4. AI Providers & Model Discovery
+![AI Providers & Models](docs/images/admin-providers.png)
+
+#### 5. User Directory & Access Control
+![Users Management](docs/images/admin-users.png)
 
 ---
 
 ## ✨ Features at a Glance
 
-- ⚡ **Live Streaming Responses**: Watch AI replies appear word-by-word in real time (using Server-Sent Events).
-- 🕒 **Timezone & Locale-Aware Grounding**: Automatically transmits user timezone (`x-timezone`) and locale (`x-locale`) headers on all requests so AI answers, timestamps, and geographic news align with your local time.
-- 🔍 **Built-in Web Search**: When needed, the AI automatically searches the web to give you up-to-date answers with source links.
+- ⚡ **Live Streaming Responses**: Watch AI replies stream word-by-word in real time via Server-Sent Events.
+- 🕒 **Timezone & Location Awareness**: Automatically sends local timezone and language headers so AI responses, timestamps, and news are always current.
+- 🔍 **Built-in Web Search**: When needed, the AI automatically searches the web to provide up-to-date answers with source links.
 - 🤖 **Easy Model Switching**: Switch between OpenAI (GPT-4o) and Google Gemini models with a single click.
-- ✏️ **Edit & Retry**: Edit any previous prompt across the conversation timeline or regenerate an answer anytime without losing your conversation history.
-- ⏳ **Skeleton Loading & Input Resilience**: Smooth skeleton placeholders (`ChatSkeleton`) during conversation loading. The prompt input clears immediately on send and automatically reverts previous text and attachments if an error occurs.
-- ⚠️ **Error Highlighting & Quick Retry**: Failed assistant messages or interrupted streams are styled with an error card and an active retry button.
+- 🧰 **AI Tools & Specialized Agents**: Browse tools (e.g., "Job Search") and run purpose-built agents (e.g., "Tailor CV", "Interview Coach") with dynamic form inputs (text, dropdowns, document and image uploads up to 5MB).
+- ✏️ **Edit & Retry**: Edit any previous prompt in the timeline or regenerate any answer without losing your conversation context.
+- 📎 **File Attachments & Previews**: Drag and drop PDF, DOCX, text/code files, or images into the chat. Click any attachment to preview it inside an interactive modal.
+- ⏳ **Smooth Loading & Input Recovery**: Clean skeleton loaders while conversations load. If a request is interrupted, your prompt text and files are restored automatically so nothing is lost.
+- ⚠️ **Error Highlighting & Quick Retry**: Any interrupted or failed message displays a clear alert card with an instant **Retry** button.
 - 🔗 **Flexible Chat Sharing**:
   - **Restricted (Default)**: Private to you.
-  - **Public**: Anyone with the link can read the conversation.
-  - **Specific Users**: Only people with invited email addresses can view.
-- 🔑 **Google Sign-In & Password Login**:
-  - Sign in with one click using your Google account.
-  - Or use standard email and password.
-  - Google users can also create a password anytime in their settings.
-- 🛡️ **Invisible Bot Protection**: Google reCAPTCHA v3 protects login and signup pages in the background without annoying puzzles.
-- 📎 **Secure File Attachments & Previews**: Responsive max-width attachment pills with word ellipsis in prompt input, full-width image cards in chat history, interactive PDF/code viewer in `FilePreviewModal`, and authenticated Blob downloads.
-- ⬇️ **Dynamic Scroll-to-Bottom**: Floating scroll button intelligently positioned directly above the prompt input based on its dynamic height.
-- 🔄 **Centralized Fetch Service**: Unified HTTP client supporting JSON, text, and binary Blobs with automatic 401 token refresh and SSE streaming error handling.
-- 📱 **Clean & Responsive UI**: Looks great and works smoothly on mobile, tablet, and desktop screens with collapsible sidebar navigation.
-- 📊 **Admin Dashboard**: Manage AI providers, add API keys, and monitor user token consumption.
+  - **Public**: Anyone with the link can view the conversation in read-only mode.
+  - **Specific Users**: Only invited email addresses can view.
+- 🔑 **Google Sign-In & Email Login**:
+  - Sign in with one click using Google OAuth2.
+  - Or sign up with a standard email and password.
+  - Google accounts can also set a password anytime in their settings.
+- 🛡️ **Invisible Bot Protection**: Google reCAPTCHA v3 protects login and signup pages in the background without annoying image puzzles.
+- 📱 **Responsive Design**: Fast, clean interface with collapsible sidebar navigation, infinite scroll history, and full mobile support.
+- 📊 **Admin Tools & Dashboard**: Full administrative portal for creating tools, configuring agents, building dynamic input fields, and monitoring token usage.
 
 ---
 
 ## 🛠️ Tech Stack
 
-We kept the tech stack modern, lightweight, and easy to understand:
-
-| Tool | Purpose | Why We Use It |
-| :--- | :--- | :--- |
-| **React 19** | UI Library | Modern component model and fast rendering |
-| **TypeScript** | Language | Catches bugs early with type safety |
-| **Vite 8** | Build Tool | Super fast local development and instant hot reload |
-| **Tailwind CSS v4** | Styling | Clean, responsive design without writing messy CSS |
-| **TanStack React Query v5** | Server State | Handles caching, refetching, and pagination smoothly |
-| **Zustand** | Global State | Simple and lightweight store for user session & UI toggles |
-| **Lucide React** | Icons | Crisp and modern icons |
-| **React Hook Form + Zod** | Forms & Validation | Clean forms with instant error messages |
+| Tool                        | Purpose            | Why We Use It                                              |
+| :-------------------------- | :----------------- | :--------------------------------------------------------- |
+| **React 19**                | UI Library         | Fast rendering and modern component architecture           |
+| **TypeScript**              | Language           | Type safety that catches bugs before runtime               |
+| **Vite 8**                  | Build Tool         | Instant server startup and blazing-fast hot reload         |
+| **Tailwind CSS v4**         | Styling            | Modern utility classes for clean, responsive design        |
+| **TanStack React Query v5** | Server State       | Caching, background refetching, and smooth infinite scroll |
+| **Zustand**                 | Global State       | Lightweight state management for user sessions and UI toggles |
+| **Lucide React**            | Icons              | Modern, crisp icons throughout the app                     |
+| **React Hook Form + Zod**   | Forms & Validation | Fast forms with instant field validation                   |
 
 ---
 
 ## 📁 Project Folder Structure
 
-Here is how the project files are organized:
-
 ```text
 frontend/
-├── public/                 # Static files (favicon, public assets)
+├── public/                 # Static public assets (favicon, logos)
 ├── src/
-│   ├── assets/             # Brand logos and images
-│   ├── components/         # Reusable UI pieces
-│   │   ├── admin/          # Admin panels (usage charts, provider forms)
-│   │   ├── auth/           # Login, Sign Up, and Password Reset forms
-│   │   ├── common/         # Shared helpers (MetaHead for page titles & SEO)
-│   │   ├── ui/             # Basic building blocks (Buttons, Modals, Inputs, Tables)
-│   │   └── user/           # Chat UI (ChatHeader, FileAttachment, FilePreviewModal, Message list, Share, Settings)
-│   ├── context/            # Context providers (Active model & draft prompt state)
-│   ├── hooks/              # Custom React hooks (useRecaptcha, useDebounce, useInfinityScroll)
+│   ├── assets/             # Brand logos and illustrations
+│   ├── components/         # Reusable UI components
+│   │   ├── admin/          # Admin components (dashboard charts, providers, tools & dynamic field builder)
+│   │   ├── auth/           # Login, registration, and password reset forms
+│   │   ├── common/         # Shared helpers (MetaHead SEO manager)
+│   │   ├── ui/             # Building blocks (Modal, Button, Input, DataTable, StatusColumn)
+│   │   └── user/           # User interface
+│   │       ├── chats/      # Chat messages, PromptInput, file attachments, and sharing
+│   │       ├── tools/      # Tool cards, Agent cards, and Agent execution dialog
+│   │       └── settings/   # Account, password change, and usage settings
+│   ├── context/            # React context (conversation state and draft input)
+│   ├── hooks/              # Custom hooks (useAppConfig, useDebounce, useInfinityScroll, useRecaptcha)
 │   ├── layouts/            # Page layouts (UserLayout with sidebar, AdminLayout)
-│   ├── lib/                # Network helpers (fetchService for streaming, queryClient for cache)
-│   ├── page/               # Main pages
-│   │   ├── admin/          # Admin views (Dashboard, Providers, Users)
-│   │   ├── auth/           # Auth pages (Login, SignUp, Google Callback)
-│   │   └── user/           # User views (Conversation.tsx, SharedConversation.tsx)
-│   ├── routes/             # App routing rules (/c/:id, /share/:id, /admin, etc.)
-│   ├── schemas/            # Zod validation schemas
-│   ├── stores/             # Zustand stores (UserStore for login, AppStore for sidebar)
-│   ├── types/              # TypeScript type definitions
+│   ├── lib/                # Network services (fetchService for SSE streaming, queryClient)
+│   ├── page/               # Route pages
+│   │   ├── admin/          # Dashboard, Providers, Tools, Users
+│   │   ├── auth/           # Login, Register, Google Callback, Password Reset
+│   │   └── user/           # Conversation, SharedConversation, Tools
+│   ├── routes/             # App routing rules and authentication guards
+│   ├── schemas/            # Zod validation schemas (agentSchema, toolSchema, auth)
+│   ├── stores/             # Zustand stores (UserStore, AppStore)
+│   ├── types/              # TypeScript types and interfaces
 │   ├── App.tsx             # Root component with providers
+│   ├── common.ts           # Shared utilities (locale context, number formatting, asset URLs)
 │   ├── index.css           # Global stylesheet and Tailwind setup
-│   └── main.tsx            # App starting point
-├── .env.example            # Template for environment variables
-├── package.json            # Project dependencies and run scripts
+│   └── main.tsx            # App entry point
+├── .env.example            # Environment variables template
+├── package.json            # Project dependencies and npm scripts
 └── vite.config.ts          # Vite configuration
 ```
 
 ---
 
-## 🚀 Getting Started (Beginner Guide)
+## 🚀 Getting Started
 
-Follow these simple steps to run the frontend locally on your machine.
+Follow these simple steps to run the frontend locally.
 
 ### Prerequisites
 
-Make sure you have installed:
 - **Node.js** (v18 or higher)
 - **npm** (comes with Node.js)
 
 ### Step 1: Install Dependencies
-
-Open your terminal, navigate to the `frontend` folder, and run:
 
 ```bash
 cd frontend
 npm install
 ```
 
-### Step 2: Set Up Your Environment File
+### Step 2: Set Up Environment Variables
 
-Copy the example file to create your own `.env`:
+Copy the example environment file:
 
 ```bash
 cp .env.example .env
 ```
 
 > [!NOTE]
-> For basic local testing, you don't need to change anything! If you want Google reCAPTCHA v3 anti-bot defense active, simply set `VITE_RECAPTCHA_SITE_KEY`. If left empty, the app will run normally in development mode without blocking you.
+> For standard local development, the default settings work out of the box. If you want Google reCAPTCHA v3 bot protection enabled, add your `VITE_RECAPTCHA_SITE_KEY`. Application limits (upload sizes, allowed file extensions, dynamic agent field rules) are fetched automatically from the backend via `GET /config`.
 
 > [!CAUTION]
-> **Never commit `.env` to GitHub** or share secret keys. Always use `.env.example` as a template.
+> **Never commit `.env` to GitHub.** Always use `.env.example` as a template.
 
 ### Step 3: Start the Development Server
-
-Run this command:
 
 ```bash
 npm run dev
 ```
 
-Your app will start at **`http://localhost:3000`** (or `http://localhost:5173`). Open that URL in your web browser!
+Open your browser and navigate to **`http://localhost:3000`** (or `http://localhost:5173`).
 
 ### Step 4: Build for Production
-
-When you are ready to deploy:
 
 ```bash
 npm run build
@@ -156,43 +185,47 @@ This compiles your TypeScript and creates an optimized production bundle in the 
 
 ---
 
-## 💡 How Key Features Work (Simple Explanations)
+## 💡 How Key Features Work
 
 ### 1. Real-Time Chat Streaming
-1. You type a question and click **Send**.
-2. Your message immediately appears on screen.
-3. The app connects to the backend streaming endpoint.
-4. As the AI thinks, words stream into your screen in real time.
-5. If the AI searches the web, you see a small search badge showing what it is looking for.
 
-### 2. Opening Conversations (`/c/:id`)
-- When you open a chat link, the app checks if the conversation exists.
-- If it exists, your chat messages load right away.
-- If it does not exist (or you don't have access), you will see a friendly error message with a **"New Conversation"** button, and the input box is hidden so you don't accidentally send messages into an invalid thread.
+1. Type your question or prompt and click **Send**.
+2. Your message immediately appears in the chat timeline.
+3. The app connects to the backend streaming endpoint using Server-Sent Events (SSE).
+4. As the AI generates words, they appear smoothly on your screen in real time.
+5. If the AI searches the web, you see a small search badge showing what query it searched.
 
-### 3. Sharing a Chat
-- Click the **Share** button in the top bar of any chat.
-- Choose your preferred privacy:
-  - **Restricted (Default)**: Completely private. No link is shown.
+### 2. AI Tools & Specialized Agents (`/tools`)
+
+1. Open **Tools** from the sidebar to browse available categories.
+2. Click **Use Agent** on any agent card (e.g., "Tailor CV").
+3. A dialog opens displaying the agent's name, description, model selector, and dynamic input fields.
+4. Fill in the required inputs (text, dropdown selection, or file uploads) and click **Start**.
+5. You are immediately redirected to a fresh conversation with the agent's customized response streaming live.
+
+### 3. Edit & Retry Messages
+
+- Hover over any previous user message in the conversation timeline to click **Edit**.
+- Update your prompt and resend. The branch updates smoothly without losing earlier conversation turns.
+- If an AI answer was interrupted or failed, click **Retry** to regenerate the response.
+
+### 4. File Attachments & Preview
+
+- Drag and drop or attach documents (PDF, DOCX, TXT, CSV) and images into the input box.
+- Attachments appear as clean badges in the input area and in chat messages.
+- Click any attached file pill to open the **File Preview Modal** to view document text, code syntax, or image previews.
+
+### 5. Chat Sharing & Privacy
+
+- Click **Share** in the chat header to control access:
+  - **Restricted (Default)**: Completely private to you.
   - **Public**: Generates a link that anyone can open in read-only mode at `/share/:id`.
-  - **Specific Users**: Enter specific email addresses. Only those users can view it.
+  - **Specific Users**: Enter email addresses to grant access only to chosen users.
 
-### 4. Google Sign-In & Passwords
-- Click **Sign in with Google** on the login page.
-- You will be sent to Google to sign in, then returned right back to the app, logged in automatically.
-- If your account was made with Google, you don't need a password. But if you ever want one, just open **Settings > Account** and click **Create Password**.
+### 6. Google Sign-In & Passwords
 
-### 5. Bot Protection (reCAPTCHA v3)
-- Google reCAPTCHA v3 runs invisibly only on login and registration pages.
-- As soon as you log in, the reCAPTCHA badge is removed automatically so it does not clutter your chat screen.
-
-### 6. File Attachments & Preview
-- Drag and drop or attach documents (PDF, DOCX, TXT, CSV) and images into the chat input with automatic filename deduplication.
-- Input attachments render as compact, responsive pills with maximum fixed width, word ellipsis, and hover tooltips (`title` tags).
-- Chat message attachments render dedicated full-width image preview cards with truncated filenames.
-- Click any attached file pill to open the **FilePreviewModal** to inspect content, code, or images before and after sending.
-- Protected files are fetched with user authentication headers and rendered via memory Blob URLs (`URL.createObjectURL`), keeping access tokens secure while supporting image viewing, embedded PDF reading, and direct file downloads.
-
+- Click **Sign in with Google** on the login page for instant authentication.
+- Google accounts do not require a password. If you ever want to set one for standard login, navigate to **Settings > Account** and click **Create Password**.
 
 ---
 

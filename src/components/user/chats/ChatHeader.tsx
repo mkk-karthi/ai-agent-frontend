@@ -66,28 +66,28 @@ export default function ChatHeader({
       <div className="absolute top-0 left-12 md:left-0 w-[calc(100%-56px)] md:w-full min-h-14 flex justify-between p-4 z-2">
         <div className="group/menu">
           <div
-            className="flex items-center justify-between gap-x-2 cursor-pointer rounded-xl bg-white dark:bg-gray-950 p-2 min-w-46"
+            className="flex items-center justify-between gap-x-2 cursor-pointer rounded-xl bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/10 shadow-xs hover:bg-gray-50 dark:hover:bg-gray-900 p-2 min-w-46"
             onClick={() => setModelsOpen((v) => !v)}
           >
             <div className="px-2 max-w-36 text-nowrap overflow-hidden text-ellipsis">
               {modelName}
             </div>
             <CircleChevronDown
-              className={`size-4 block ${modelsOpen && "rotate-180"} transition-[rotate] duration-300`}
+              className={`size-4 block ${modelsOpen && "rotate-180"} transition-[rotate] duration-300 text-gray-500`}
             />
           </div>
 
           {!isError && (
             <ul
               ref={modelsMenuRef}
-              className={`absolute left-6 md:left-2 top-12 min-w-42 ${modelsOpen ? "block pointer-events-auto" : "hidden pointer-events-none"} transition-all duration-300 mt-2 w-auto rounded-md shadow-lg border border-gray-400 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 max-h-72 overflow-y-auto`}
+              className={`absolute left-6 md:left-2 top-12 min-w-42 ${modelsOpen ? "block pointer-events-auto" : "hidden pointer-events-none"} transition-all duration-300 mt-2 w-auto rounded-md shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 z-10 max-h-72 overflow-y-auto`}
             >
               {isLoading
                 ? "Loading"
                 : data?.map((item) => (
                     <div key={item.id}>
                       <li
-                        className={`w-full px-4 py-2 transition relative group/child text-gray-800/60 dark:text-white/60 font-semibold text-left text-sm text-nowrap cursor-pointer pointer-events-none`}
+                        className={`w-full px-4 py-2 transition relative group/child text-gray-500 dark:text-white/60 font-semibold text-left text-sm text-nowrap cursor-pointer pointer-events-none`}
                       >
                         {item.name}
                       </li>
@@ -95,7 +95,7 @@ export default function ChatHeader({
                       {item.models?.map((modelData) => (
                         <li
                           key={modelData.id}
-                          className={`w-full pl-6 pr-4 py-2 transition relative group/child ${item.status === "ACTIVE" && modelData.status === "ACTIVE" ? "text-gray-800 dark:text-white hover:bg-gray-900/10 dark:hover:bg-gray-700/50 pointer-events-auto" : "text-gray-800/50 dark:text-white/50 text-base pointer-events-none"} text-left text-sm text-nowrap cursor-pointer ${modelId == modelData.id && "bg-gray-900/10 dark:bg-gray-700/50"}`}
+                          className={`w-full pl-6 pr-4 py-2 transition relative group/child ${item.status === "ACTIVE" && modelData.status === "ACTIVE" ? "text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700/50 pointer-events-auto" : "text-gray-400 dark:text-white/50 text-base pointer-events-none"} text-left text-sm text-nowrap cursor-pointer ${modelId == modelData.id && "bg-gray-100 font-semibold text-indigo-600 dark:bg-gray-700/50 dark:text-white"}`}
                           onClick={() => (setModelId(modelData.id), setModelsOpen(false))}
                         >
                           {modelData.modelName}
@@ -104,7 +104,7 @@ export default function ChatHeader({
                     </div>
                   ))}
               <li
-                className={`w-full px-4 py-2 transition relative group/child text-gray-800 dark:text-white font-semibold text-left text-sm text-nowrap cursor-pointer`}
+                className={`w-full px-4 py-2 transition relative group/child text-gray-800 dark:text-white font-semibold text-left text-sm text-nowrap cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800`}
                 onClick={() => (
                   setSettingTab("tokens"),
                   setSettingsOpen(true),
@@ -118,7 +118,7 @@ export default function ChatHeader({
         </div>
         {chatId === "new" || !canShare ? null : (
           <div
-            className="flex items-center px-2.5 py-2 size-9.5 md:size-auto bg-white dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-full shadow-[0_0_5px_3px] shadow-gray-600/30 cursor-pointer"
+            className="flex items-center px-2.5 py-2 size-9.5 md:size-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full shadow-xs hover:bg-gray-50 text-gray-700 dark:text-white cursor-pointer"
             onClick={() => openShareModel(true)}
           >
             <Share className="size-4 cursor-pointer" />

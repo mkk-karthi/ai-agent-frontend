@@ -1,10 +1,10 @@
 import ChatHeader from "../../components/user/chats/ChatHeader";
-import { useCallback, useContext, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import PromptInput, {
   type PromptInputRef,
   type PromptInputState,
 } from "../../components/user/chats/PromptInput";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ChatMessages from "../../components/user/chats/ChatMessages";
 import ChatSkeleton from "../../components/user/chats/ChatSkeleton";
 import { useUserStore } from "../../stores/UserStore";
@@ -16,6 +16,7 @@ import { AlertCircle, Loader, SquarePen } from "lucide-react";
 import { queryClient } from "../../lib/queryClient";
 import type { AttachmentType, ConversationType } from "../../types/conversation";
 import MetaHead from "../../components/common/MetaHead";
+import { getClientLocaleContext } from "../../common";
 
 export default function Conversation(): React.ReactElement {
   const { id } = useParams<{ id: string }>();
@@ -27,10 +28,12 @@ export default function Conversation(): React.ReactElement {
   const [modelId, setModelId] = useState("");
   const promptRef = useRef<PromptInputRef>(null);
   const pendingPromptBackupRef = useRef<PromptInputState | null>(null);
+  const handledAutoStreamRef = useRef<string | null>(null);
   const { setEditData } = useContext(ConversationContext);
 
   const { user } = useUserStore.getState();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     data: conversationData,
@@ -142,75 +145,30 @@ export default function Conversation(): React.ReactElement {
       editId,
       files,
       attachmentIds,
+      selectedModelId,
+      targetConversationId,
     }: {
       prompt: string;
       editId?: string;
       files?: File[];
       attachmentIds?: string[];
+      selectedModelId?: string;
+      targetConversationId?: string;
     }) => {
       setStreamedText("");
-
-      let targetConversationId = id;
-
-      // If this is a new conversation, first create it via the dedicated create endpoint
-      if (isNew) {
-        let createRes;
-        try {
-          const clientTimezone =
-            typeof Intl !== "undefined"
-              ? Intl.DateTimeFormat().resolvedOptions().timeZone
-              : undefined;
-          const clientLocale = typeof navigator !== "undefined" ? navigator.language : undefined;
-
-          createRes = await fetchService.post<{ id: string; name: string }>(
-            "/conversation/create",
-            {
-              modelId: Number(modelId),
-              prompt,
-              timezone: clientTimezone,
-              locale: clientLocale,
-            },
-          );
-        } catch (createErr) {
-          if (pendingPromptBackupRef.current) {
-            promptRef.current?.restoreState(pendingPromptBackupRef.current);
-            pendingPromptBackupRef.current = null;
-          }
-          throw createErr;
-        }
-
-        if (createRes.code !== 201 || !createRes.data) {
-          if (pendingPromptBackupRef.current) {
-            promptRef.current?.restoreState(pendingPromptBackupRef.current);
-            pendingPromptBackupRef.current = null;
-          }
-          throw new Error(createRes.message || "Failed to create conversation");
-        }
-
-        const newConversation = createRes.data;
-        targetConversationId = newConversation.id;
-
-        queryClient.setQueryData(["conversation", targetConversationId], newConversation);
-        navigate(`/${targetConversationId}`, { replace: true });
-        queryClient.invalidateQueries({ queryKey: ["coversations"] });
-      }
+      const activeConversationId = targetConversationId || id;
 
       // Stream message into the conversation
       const formData = new FormData();
       formData.append("prompt", prompt);
-      formData.append("modelId", modelId);
-      formData.append("conversationId", targetConversationId);
+      formData.append("modelId", selectedModelId ?? modelId);
+      formData.append("conversationId", activeConversationId);
       if (editId) formData.append("id", editId);
-      if (typeof Intl !== "undefined") {
-        try {
-          formData.append("timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
-        } catch {}
-      }
-      if (typeof navigator !== "undefined") {
-        try {
-          formData.append("locale", navigator.language);
-        } catch {}
-      }
+
+      const { timezone, locale } = getClientLocaleContext();
+      if (timezone) formData.append("timezone", timezone);
+      if (locale) formData.append("locale", locale);
+
       if (attachmentIds && attachmentIds.length > 0) {
         attachmentIds.forEach((attId) => {
           formData.append("attachmentIds", attId);
@@ -226,7 +184,7 @@ export default function Conversation(): React.ReactElement {
         "/conversation/generate-stream-content",
         formData,
         {},
-        (chunk) => handleStreamResponse(chunk, prompt, targetConversationId, editId),
+        (chunk) => handleStreamResponse(chunk, prompt, activeConversationId, editId),
       );
 
       if (!response.success) {
@@ -247,20 +205,44 @@ export default function Conversation(): React.ReactElement {
     },
   });
 
+  useEffect(() => {
+    if (
+      location.state?.autoStream &&
+      id &&
+      !isNew &&
+      handledAutoStreamRef.current !== id
+    ) {
+      handledAutoStreamRef.current = id;
+      const { prompt, modelId: streamModelId, files } = location.state.autoStream;
+      if (streamModelId) setModelId(String(streamModelId));
+
+      pendingPromptBackupRef.current = {
+        prompt,
+        files,
+      };
+
+      generateMutation.mutate({
+        prompt,
+        files,
+        selectedModelId: streamModelId,
+        targetConversationId: id,
+      });
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [id, isNew, location.state, location.pathname, navigate, generateMutation]);
+
   const retryMutation = useMutation({
     mutationFn: async ({ editId }: { editId?: string }) => {
       setStreamedText("");
-      const clientTimezone =
-        typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined;
-      const clientLocale = typeof navigator !== "undefined" ? navigator.language : undefined;
+      const { timezone, locale } = getClientLocaleContext();
 
       const response = await fetchService.stream(
         "/conversation/retry-stream-content",
         {
           conversationId: id,
           id: editId,
-          timezone: clientTimezone,
-          locale: clientLocale,
+          timezone,
+          locale,
         },
         {},
         (chunk) => handleStreamResponse(chunk, "", id, editId),
@@ -276,12 +258,53 @@ export default function Conversation(): React.ReactElement {
     },
   });
 
-  // useEffect(() => {
-  //   if (!generateMutation.isPending) {
-  //     promptRef.current?.clear();
-  //     setEditData(null);
-  //   }
-  // }, [id, generateMutation.isPending]);
+  const conversationMutation = useMutation({
+    mutationFn: async (data: {
+      id: string;
+      prompt: string;
+      files?: File[];
+      attachmentIds?: string[];
+    }) => {
+      setStreamedText("");
+      const { timezone, locale } = getClientLocaleContext();
+
+      const response = await fetchService.post<{ id: string; name: string }>(
+        "/conversation/create",
+        {
+          modelId: Number(modelId),
+          prompt: data.prompt,
+          timezone,
+          locale,
+        },
+      );
+
+      if (!response.success || !response.data) {
+        toast.error(response.message || "Failed to create conversation");
+      } else {
+        const newConversation = response.data;
+
+        queryClient.setQueryData(["conversation", newConversation.id], newConversation);
+        navigate(`/${newConversation.id}`, { replace: true });
+        queryClient.invalidateQueries({ queryKey: ["coversations"] });
+
+        generateMutation.mutate({
+          prompt: data.prompt,
+          editId: data.id,
+          files: data.files,
+          attachmentIds: data.attachmentIds,
+          targetConversationId: newConversation.id,
+        });
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      if (pendingPromptBackupRef.current) {
+        promptRef.current?.restoreState(pendingPromptBackupRef.current);
+        pendingPromptBackupRef.current = null;
+      }
+      toast.error(error.message);
+    },
+  });
 
   const generateContent = useCallback(
     (data: {
@@ -300,15 +323,20 @@ export default function Conversation(): React.ReactElement {
           editId: data.id,
         };
 
-        generateMutation.mutate({
-          prompt: data.prompt,
-          editId: data.id,
-          files: data.files,
-          attachmentIds: data.attachmentIds,
-        });
+        // If this is a new conversation, first create it via the dedicated create endpoint
+        if (isNew) {
+          conversationMutation.mutate(data);
+        } else {
+          generateMutation.mutate({
+            prompt: data.prompt,
+            editId: data.id,
+            files: data.files,
+            attachmentIds: data.attachmentIds,
+          });
+        }
       }
     },
-    [generateMutation],
+    [conversationMutation, generateMutation],
   );
 
   const regenerateContent = useCallback(
@@ -377,7 +405,9 @@ export default function Conversation(): React.ReactElement {
         <ChatMessages
           chatId={id}
           setModelId={setModelId}
-          isLoading={generateMutation.isPending || retryMutation.isPending}
+          isLoading={
+            conversationMutation.isPending || generateMutation.isPending || retryMutation.isPending
+          }
           streamedText={streamedText}
           setStreamedText={setStreamedText}
           regenerateContent={regenerateContent}
@@ -389,15 +419,15 @@ export default function Conversation(): React.ReactElement {
           className={`absolute inset-x-0 flex flex-col items-center w-full px-4 md:px-8 transition-all duration-300 ${isNew ? "top-1/3" : "bottom-8 z-2"}`}
         >
           <div
-            className={`${isNew && !generateMutation.isPending ? "flex" : "hidden"} text-4xl my-8 text-center`}
+            className={`${isNew && !generateMutation.isPending && !conversationMutation.isPending ? "flex" : "hidden"} text-4xl my-8 text-center`}
           >
             Ask your query,
             <span className="lowercase first-letter:uppercase ml-2">{user?.firstName}</span>
           </div>
           <div
-            className={`${isNew && generateMutation.isPending ? "flex items-center gap-2" : "hidden"} my-8 text-gray-600 dark:text-gray-300`}
+            className={`${isNew && (generateMutation.isPending || conversationMutation.isPending) ? "flex items-center gap-2" : "hidden"} my-8 text-gray-600 dark:text-gray-300`}
           >
-            <Loader size={20} className="animate-spin text-blue-500" />
+            <Loader size={20} className="animate-spin text-indigo-500" />
             <span className="text-base font-medium">Starting conversation...</span>
           </div>
           <PromptInput

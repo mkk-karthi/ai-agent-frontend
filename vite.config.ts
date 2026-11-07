@@ -8,6 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": "http://localhost:8000", // Redirects frontend /api requests to the backend
+      "/uploads": "http://localhost:8000", // Redirects frontend /uploads requests to the backend
     },
   },
 });

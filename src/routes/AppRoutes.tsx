@@ -9,9 +9,11 @@ import {
   type RouteObject,
 } from "react-router-dom";
 import Conversation from "../page/user/Conversation";
+import UserTools from "../page/user/Tools";
 import Privacy from "../page/user/privacy";
 import Dashboard from "../page/admin/Dashboard";
 import Providers from "../page/admin/Providers";
+import AdminTools from "../page/admin/Tools";
 import AdminLayout from "../layouts/admin/AdminLayout";
 import User from "../page/admin/User";
 import Layout from "../layouts/user/Layout";
@@ -88,8 +90,12 @@ const routes: RouteObject[] = [
     errorElement: <CustomErrorPage />,
     children: [
       {
-        path: "/:id",
-        index: true,
+        path: "tools",
+        element: <UserTools />,
+        middleware: [authMiddleware],
+      },
+      {
+        path: ":id",
         element: <Conversation />,
         middleware: [authMiddleware],
       },
@@ -161,6 +167,10 @@ const routes: RouteObject[] = [
       {
         path: "providers",
         element: <Providers />,
+      },
+      {
+        path: "tools",
+        element: <AdminTools />,
       },
     ],
   },

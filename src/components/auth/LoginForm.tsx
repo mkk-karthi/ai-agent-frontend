@@ -3,7 +3,7 @@ import { loginSchema, type LoginInput } from "../../schemas/authSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import type { FormProps } from "../../types/type";
 
 export default function LoginForm({ defaultValues, onSubmit, isLoading }: FormProps<LoginInput>) {
@@ -15,7 +15,7 @@ export default function LoginForm({ defaultValues, onSubmit, isLoading }: FormPr
     resolver: zodResolver(loginSchema),
     defaultValues,
   });
-  const [showPassword, setShowPasword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -46,15 +46,19 @@ export default function LoginForm({ defaultValues, onSubmit, isLoading }: FormPr
             placeholder="Enter your password"
             className={`w-full px-3 py-2 text-sm bg-white dark:bg-white/5 focus:outline-2 focus:outline-gray-400 rounded-l-md`}
           />
-          <div className="px-2 cursor-pointer" onClick={() => setShowPasword((val) => !val)}>
-            {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+          <div className="px-2 cursor-pointer" onClick={() => setShowPassword((val) => !val)}>
+            {showPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
           </div>
         </div>
-        <p className="mt-1 text-sm text-red-500 h-4">{errors.password && errors.password.message}</p>
+        <p className="mt-1 text-sm text-red-500 h-4">
+          {errors.password && errors.password.message}
+        </p>
       </div>
 
       <div className="flex justify-end">
-        <Link to="/auth/reset" viewTransition>Forget your password?</Link>
+        <Link to="/auth/reset" viewTransition>
+          Forget your password?
+        </Link>
       </div>
 
       <button

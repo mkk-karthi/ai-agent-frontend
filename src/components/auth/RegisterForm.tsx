@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { registerSchema, type RegisterInput } from "../../schemas/authSchema";
 import type { FormProps } from "../../types/type";
 
@@ -18,7 +18,7 @@ export default function RegisterForm({
     resolver: zodResolver(registerSchema),
     defaultValues,
   });
-  const [showPassword, setShowPasword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showConformPassword, setShowConformPassword] = useState(false);
 
   return (
@@ -50,8 +50,8 @@ export default function RegisterForm({
             placeholder="Enter your password"
             className={`w-full px-3 py-2 text-sm bg-white dark:bg-white/5 focus:outline-2 focus:outline-gray-400 rounded-l-md`}
           />
-          <div className="px-2 cursor-pointer" onClick={() => setShowPasword((val) => !val)}>
-            {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+          <div className="px-2 cursor-pointer" onClick={() => setShowPassword((val) => !val)}>
+            {showPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
           </div>
         </div>
         <p className="mt-1 text-sm text-red-500 h-4">
@@ -76,7 +76,7 @@ export default function RegisterForm({
             className="px-2 cursor-pointer"
             onClick={() => setShowConformPassword((val) => !val)}
           >
-            {showConformPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+            {showConformPassword ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
           </div>
         </div>
         <p className="mt-1 text-sm text-red-500 h-4">

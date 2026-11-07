@@ -4,10 +4,7 @@ import { Download, FileText, AlertCircle, Loader } from "lucide-react";
 import type { AttachmentType } from "../../../types/conversation";
 import { fetchService } from "../../../lib/fetchService";
 import { useQuery } from "@tanstack/react-query";
-import {
-  useAttachmentBlobUrl,
-  downloadAttachmentFile,
-} from "../../../hooks/useAttachmentUrl";
+import { useAttachmentBlobUrl, downloadAttachmentFile } from "../../../hooks/useAttachmentUrl";
 
 interface FilePreviewModalProps {
   isOpen: boolean;
@@ -62,10 +59,7 @@ export default function FilePreviewModal({
     isLoading: isBlobLoading,
     isError: isBlobError,
     error: blobError,
-  } = useAttachmentBlobUrl(
-    endpoint,
-    Boolean(isOpen && attachment && (isImage || isPdf)),
-  );
+  } = useAttachmentBlobUrl(endpoint, Boolean(isOpen && attachment && (isImage || isPdf)));
 
   if (!attachment) return null;
 
@@ -99,7 +93,7 @@ export default function FilePreviewModal({
             type="button"
             onClick={handleDownload}
             disabled={downloading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white! font-medium text-xs transition cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white! font-medium text-xs transition cursor-pointer disabled:opacity-50"
           >
             {downloading ? <Loader size={14} className="animate-spin" /> : <Download size={14} />}
             {downloading ? "Downloading..." : "Download"}
@@ -179,9 +173,13 @@ export default function FilePreviewModal({
                 type="button"
                 onClick={handleDownload}
                 disabled={downloading}
-                className="mt-2 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs transition cursor-pointer disabled:opacity-50"
+                className="mt-2 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs transition cursor-pointer disabled:opacity-50"
               >
-                {downloading ? <Loader size={14} className="animate-spin" /> : <Download size={14} />}
+                {downloading ? (
+                  <Loader size={14} className="animate-spin" />
+                ) : (
+                  <Download size={14} />
+                )}
                 Download {attachment.originalName}
               </button>
             </div>

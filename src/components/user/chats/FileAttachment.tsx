@@ -10,10 +10,7 @@ import {
 } from "lucide-react";
 import type { AttachmentType } from "../../../types/conversation";
 import FilePreviewModal from "./FilePreviewModal";
-import {
-  useAttachmentBlobUrl,
-  downloadAttachmentFile,
-} from "../../../hooks/useAttachmentUrl";
+import { useAttachmentBlobUrl, downloadAttachmentFile } from "../../../hooks/useAttachmentUrl";
 
 interface FileAttachmentProps {
   attachment: AttachmentType;
@@ -32,8 +29,7 @@ export default function FileAttachment({
     attachment.mimeType === "application/pdf" ||
     attachment.originalName.toLowerCase().endsWith(".pdf");
   const isWord =
-    attachment.mimeType.includes("word") ||
-    /\.(doc|docx)$/i.test(attachment.originalName);
+    attachment.mimeType.includes("word") || /\.(doc|docx)$/i.test(attachment.originalName);
   const isSheet =
     attachment.mimeType.includes("csv") ||
     attachment.mimeType.includes("spreadsheet") ||
@@ -48,10 +44,7 @@ export default function FileAttachment({
     ? `/shared/attachment/${attachment.id}`
     : `/conversation/attachment/${attachment.id}`;
 
-  const { blobUrl, isLoading: isImageLoading } = useAttachmentBlobUrl(
-    endpoint,
-    isImage,
-  );
+  const { blobUrl, isLoading: isImageLoading } = useAttachmentBlobUrl(endpoint, isImage);
 
   const formatSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
@@ -123,7 +116,11 @@ export default function FileAttachment({
                 className="p-2 rounded-full bg-white/25 hover:bg-white/40 text-white backdrop-blur-sm transition cursor-pointer disabled:opacity-50"
                 title="Download"
               >
-                {downloading ? <Loader size={16} className="animate-spin" /> : <Download size={16} />}
+                {downloading ? (
+                  <Loader size={16} className="animate-spin" />
+                ) : (
+                  <Download size={16} />
+                )}
               </button>
             </div>
           </div>
@@ -141,12 +138,10 @@ export default function FileAttachment({
           onClick={() => setIsPreviewOpen(true)}
           className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer max-w-sm group shadow-xs"
         >
-          <div className="p-2 rounded-lg bg-gray-100 dark:bg-white/5">
-            {getIcon()}
-          </div>
+          <div className="p-2 rounded-lg bg-gray-100 dark:bg-white/5">{getIcon()}</div>
           <div className="flex flex-col min-w-0 flex-1">
             <span
-              className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate group-hover:text-blue-500 transition"
+              className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate group-hover:text-indigo-500 transition"
               title={attachment.originalName}
             >
               {attachment.originalName}

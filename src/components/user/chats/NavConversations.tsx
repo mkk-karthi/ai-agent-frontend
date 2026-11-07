@@ -116,14 +116,14 @@ export default function NavConversations({
         <form
           ref={formRef}
           onSubmit={handleRenameSubmit}
-          className={`flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer group ${id == item.id && "bg-gray-900/5 dark:bg-white/5"}`}
+          className={`flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-200/50 dark:hover:bg-white/5 cursor-pointer group ${id == item.id && "bg-gray-200/70 dark:bg-white/5"}`}
         >
           <input
             ref={inputRef}
             name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="outline-none border-none w-full pl-4 pr-2 py-1"
+            className="outline-none border-none bg-transparent w-full pl-4 pr-2 py-1"
           />
           {isLoading ? (
             <Loader
@@ -142,7 +142,7 @@ export default function NavConversations({
           to={`/${item.id}`}
           onClick={navOpen}
           className={({ isActive }) =>
-            `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-900/5 dark:hover:bg-white/5 cursor-pointer ${isActive && "bg-gray-900/5 dark:bg-white/5"} group`
+            `flex justify-start items-center rounded text-gray-950! dark:text-white! hover:bg-gray-200/50 dark:hover:bg-white/5 cursor-pointer ${isActive && "bg-gray-200/70 dark:bg-white/5"} group`
           }
         >
           <div

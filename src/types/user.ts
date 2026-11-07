@@ -4,4 +4,5 @@ export interface User {
   lastName: string;
   email: string;
   status: "ACTIVE" | "INACTIVE";
+  createdAt?: string;
 }

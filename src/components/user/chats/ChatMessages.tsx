@@ -4,7 +4,7 @@ import { parseMarkdown } from "@tanstack/markdown/parser";
 import { streamingMarkdownExtension } from "@tanstack/markdown/extensions/streaming";
 import { fetchService } from "../../../lib/fetchService";
 import { useInfiniteScroll } from "../../../hooks/useInfinityScroll";
-import { MarkdownComponent } from "../../ui/MarkdownComponent";
+import { MarkdownComponent } from "./MarkdownComponent";
 import { ChevronDown, Loader } from "lucide-react";
 import ChatMessage from "./ChatMessage";
 import ChatSkeleton from "./ChatSkeleton";
@@ -76,6 +76,7 @@ export default function ChatMessages({
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const containerBottomRef = useRef<HTMLDivElement>(null);
+  const hasScrolledToBottomRef = useRef<string | null>(null);
   const loaderRef = useInfiniteScroll({
     isLoading: isFetchingNextPage,
     hasMore: hasNextPage,
@@ -98,8 +99,18 @@ export default function ChatMessages({
   });
 
   useEffect(() => {
-    if (chatContainerRef.current && data?.pages.length === 1 && !isLoading) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    if (chatContainerRef.current && data?.pages.length === 1) {
+      const hasContent =
+        (data.pages[0]?.data && data.pages[0].data.length > 0) || Boolean(streamedText);
+      if (hasScrolledToBottomRef.current !== chatId && (hasContent || !isLoading)) {
+        hasScrolledToBottomRef.current = chatId;
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        requestAnimationFrame(() => {
+          if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+          }
+        });
+      }
     }
 
     if (
@@ -111,7 +122,7 @@ export default function ChatMessages({
     ) {
       setModelId(data.pages[0].data[0].modelId);
     }
-  }, [data, chatId, setModelId]);
+  }, [data, chatId, setModelId, isLoading, streamedText]);
 
   useEffect(() => {
     if (!isLoading && streamedText) {
@@ -162,7 +173,7 @@ export default function ChatMessages({
           >
             <ChevronDown
               size={32}
-              className="p-1 rounded-full bg-gray-700/50 cursor-pointer border border-gray-200/50 backdrop-blur-xs"
+              className="p-1 rounded-full bg-white dark:bg-gray-700/50 text-gray-700 dark:text-white cursor-pointer border border-gray-300 dark:border-gray-200/50 shadow-xs hover:bg-gray-50 backdrop-blur-xs"
               onClick={scrollToBottom}
             />
           </div>
@@ -178,7 +189,7 @@ export default function ChatMessages({
           <div className="flex my-6 flex-col-reverse gap-3">
             <div ref={containerBottomRef} className="h-2 w-full"></div>
             {isLoading && !streamedText && (
-              <div className="flex items-center gap-2 w-fit mx-10 my-4 p-4 bg-gray-200 dark:bg-gray-800/80 rounded-4xl min-h-7.5">
+              <div className="flex items-center gap-2 w-fit mx-10 my-4 p-4 bg-gray-100 dark:bg-gray-800/80 rounded-4xl min-h-7.5">
                 <span className="flex items-center gap-1.5">
                   {[0, 150, 300].map((delay) => (
                     <span

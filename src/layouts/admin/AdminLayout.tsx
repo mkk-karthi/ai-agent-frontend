@@ -14,7 +14,7 @@ export default function AdminLayout() {
   }, []);
 
   return (
-    <div className="flex relative bg-white dark:bg-gray-950">
+    <div className="flex relative bg-gray-100 dark:bg-gray-950 max-w-dvw">
       {/* Sidebar */}
       <NavBar />
 
